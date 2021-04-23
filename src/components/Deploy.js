@@ -63,11 +63,11 @@ class Deploy extends Component{
 
     selectedStoredAbiChanged = (event) => {
       this.setState({ selectedStoredAbi: event.target.value });
-  };
+    };
 
     handleChange = (event) => {
       this.setState({ network: event.target.value });
-};
+    };
 
     readBPMN = async (e) => {
         e.preventDefault()
@@ -86,9 +86,9 @@ class Deploy extends Component{
         reader.readAsText(e.target.files[0]);
         this.setState({selectedFile: e.target.files[0].name});
 
-      }
+    }
 
-      readABI = async (e) => {
+    readABI = async (e) => {
         e.preventDefault()
         const reader = new FileReader()
         reader.onload = async (e) => { 
@@ -99,10 +99,10 @@ class Deploy extends Component{
         reader.readAsText(e.target.files[0]);
         this.setState({selectedFile: e.target.files[0].name});
 
-      }
+    }
 
 
-      deployModel = async () => {
+    deployModel = async () => {
 
         this.setState({isDialogOpen: true});
         switch(this.state.network) {
@@ -179,16 +179,16 @@ class Deploy extends Component{
 
       }
 
-      setAndUpdateConnection = (value) => {
+    setAndUpdateConnection = (value) => {
         this.setState({
           selectedConnection: value.selectedConnection,
           selectedAddress: value.selectedAddress
         })
-      }
+    }
     
 
     render(){
-      return(
+        return(
           <div>
               <Header setAndUpdateConnection={this.setAndUpdateConnection} />
               <div className="content">
@@ -326,7 +326,7 @@ class Deploy extends Component{
           </div>
       );
     }
-  }
+}
   
   export default hot(module)(Deploy);
 
