@@ -12,22 +12,27 @@ import {
     InputGroup,
     Radio
 } from  "@blueprintjs/core";
+import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
+import restConfig from "../dataExchange/connection/rest-config.json";
 
 class Configure extends Component {
 
     state = {
         selectedFile: "Select a file...",
-        storedAbiNames: [],
+        storedAbis: [],
         currentAbi: "",
         currentAbiName: ""
     }
 
     componentDidMount() {
-        let abis = JSON.parse(localStorage.getItem('abis'));
-        if(!abis) {
-            abis = new Array();
-        }
-        this.setState({storedAbiNames: abis.map(abi => abi.key)})
+        ExchangeHandler.sendRequest('GET', restConfig.SERVER_URL + '/abis').then(response => {
+            this.setState({storedAbis: response.data})
+        })
+        // let abis = JSON.parse(localStorage.getItem('abis'));
+        // if(!abis) {
+        //     abis = new Array();
+        // }
+        // this.setState({storedAbiNames: abis.map(abi => abi.key)})
     }
 
     readConfig = async (e) => {
@@ -98,8 +103,8 @@ class Configure extends Component {
                                 selectedValue={this.state.selectedStoredAbi}
                             >
                                 {
-                                        this.state.storedAbiNames.map(abiName => {
-                                            return (<Radio key={abiName} value={abiName} label={abiName} />)
+                                        this.state.storedAbis.map(abi => {
+                                            return (<Radio key={abi.key} value={abi.key} label={abi.key} />)
                                         })
                                 }
                             </RadioGroup>

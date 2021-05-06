@@ -2,6 +2,8 @@ import React, { Component} from "react";
 import {hot} from "react-hot-loader";
 import Header from './Header';
 const Web3 = require("web3");
+import restConfig from '../dataExchange/connection/rest-config.json'
+import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
 import { 
   Button,
   Card,
@@ -30,29 +32,31 @@ class Web3Info extends Component{
 
   connections = [];
 
+  /**
+   * Getting connections from the database
+   */
+  fetchConnections = () => {
+    ExchangeHandler.sendRequest('GET', restConfig.SERVER_URL + '/web3Connections').then(response => {
+      this.setState({storedConnections: response.data})
+    })
+  }
+
   componentDidMount() {
-
-    let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
-    if(!web3Connections) {
-      web3Connections = new Array();
-    }
-
-    this.setState({ storedConnections: web3Connections });
+    this.fetchConnections()
+    // let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
+    // if(!web3Connections) {
+    //   web3Connections = new Array();
+    // }
+    //
+    // this.setState({ storedConnections: web3Connections });
 
     let ethereum = window.ethereum;
     if (window.ethereum) {
-      let connected;
-      
-      connected = ethereum.isConnected();
-
-
       window.web3 = new Web3(window.ethereum);
-      let result =  window.ethereum.send('eth_requestAccounts').then(r => console.log("r", r));
       console.log(window.web3);
       window.web3.eth.getAccounts().then(accounts => {
         this.setState({metaMask: accounts[0]});
       });
-
 
       return;
     }
@@ -64,11 +68,7 @@ class Web3Info extends Component{
           connectionUrl: this.web3._provider.url
         });
       console.log(this.web3);
-
-      return;
     }
-    this.setState({metaMask: "still false"});
-    
   }
 
 
@@ -77,25 +77,17 @@ class Web3Info extends Component{
   }
 
   deleteConnection = (connection) => {
-    let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
-    web3Connections = web3Connections.filter(con => con !== connection)
-    localStorage.setItem("web3Connections", JSON.stringify(web3Connections));
-    this.setState({storedConnections: web3Connections})
+    ExchangeHandler.sendRequest('DELETE', restConfig.SERVER_URL + '/web3Connections/' + connection.id)
+        .then(this.fetchConnections)
   }
   
   addNewConnection = async () => {
-    let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
-    if(!web3Connections) {
-      web3Connections = new Array();
-    }
-    web3Connections.push(this.state.currentNewUrl);
-    localStorage.setItem("web3Connections", JSON.stringify(web3Connections));
-    this.setState({ 
-      storedConnections: web3Connections,
-      currentNewUrl: ""
-    })
+    ExchangeHandler.sendRequest('POST', restConfig.SERVER_URL + '/web3Connections', {address: this.state.currentNewUrl})
+        .then(() => {
+          this.setState({currentNewUrl: ""})
+          this.fetchConnections()
+        })
 }
-
 
     render(){
       return(
@@ -136,16 +128,16 @@ class Web3Info extends Component{
                       </Card>
                   </div>
                   
-                  <div id="customConnections">
+                <div id="customConnections">
                     <h3>Custom Connections</h3>
                       <div  style={{margin: '10px', display: 'flex'}}>
                         {
                           this.state.storedConnections.map(connection => {
                             return (
-                              <Card key={connection}  style={{width: '300px'}}>
+                              <Card key={connection.address}  style={{width: '300px'}}>
                                 <h2><Icon icon="ip-address" iconSize={32}  /> Connection</h2>
                                 
-                                <div>URL: <b>{connection}</b></div> <br />
+                                <div>URL: <b>{connection.address}</b></div> <br />
                                 <Button
                                   intent="warning"
                                   icon="eraser"
@@ -162,7 +154,7 @@ class Web3Info extends Component{
                         >
                           <h4>Add new Connection</h4>
                           <ControlGroup vertical={false}>
-                            <InputGroup onChange={this.updateNewUrl} id="text-input" placeholder="Connection URL..."  intent="primary" />
+                            <InputGroup onChange={this.updateNewUrl} value={this.state.currentNewUrl} id="text-input" placeholder="Connection URL..."  intent="primary" />
                             <Button
                               intent="primary"
                               icon="plus"

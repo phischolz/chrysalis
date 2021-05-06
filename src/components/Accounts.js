@@ -4,6 +4,7 @@ import Header from './Header';
 const Web3 = require("web3");
 
 
+
 import { 
   Button,
   RadioGroup,
@@ -15,13 +16,14 @@ import {
 
 } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
+import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
+import restConfig from "../dataExchange/connection/rest-config.json";
 
 
 class Accounts extends Component {
 
 
   state = {
-    storedConnections: [],
     selectedConnection: '',
     connectionSelected: false,
 
@@ -35,26 +37,9 @@ class Accounts extends Component {
   connections = [];
 
   componentDidMount() {
-
-    // GET CONNECTIONS FROM LOCAL STORAGE
-    let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
-    if(!web3Connections) {
-      web3Connections = new Array();
-    }
-
-    if (window.ethereum) {
-      web3Connections.push("MetaMask");
-    }
-    
-    this.setState({ storedConnections: web3Connections });
-
-    // GET ACCOUNTS FROM LOCAL STORAGE
-    let accounts = JSON.parse(localStorage.getItem("accounts"));
-    if(!accounts) {
-      accounts = new Array();
-    }
-    this.setState({ storedAccounts: accounts });
-    
+    ExchangeHandler.sendRequest('GET', restConfig.SERVER_URL + '/accounts').then(response => {
+      this.setState({storedAccounts: response.data})
+    })
   }
 
   setAndUpdateConnection = (value) => {
@@ -89,12 +74,7 @@ class Accounts extends Component {
 
         break;
     }
-
-
-  
-
   }
-
 
   updateInputImportAccount = (event) => {
     this.setState({currentImportAccount : event.target.value});
@@ -162,7 +142,7 @@ class Accounts extends Component {
                             >
                                 {
                                    this.state.storedAccounts.map(account => {
-                                            return (<Radio key={account.addr} value={account.addr} label={account.addr} />)
+                                            return (<Radio key={account.address} value={account.address} label={account.address} />)
                                         })
                                 }
                             </RadioGroup>

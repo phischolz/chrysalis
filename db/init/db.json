@@ -1,0 +1,29 @@
+{
+  "web3Connections": [
+    {
+      "id": "1",
+      "address": "test"
+    }
+  ],
+  "accounts": [
+    {
+      "id": "1",
+      "address": "test",
+      "privateKey": "test"
+    }
+  ],
+  "abis": [
+    {
+      "id": "1",
+      "key": "test",
+      "abi": "test"
+    }
+  ],
+  "settings": [
+    {
+      "id": "0",
+      "web3ConnectionId": "1",
+      "accountId": "1"
+    }
+  ]
+}
