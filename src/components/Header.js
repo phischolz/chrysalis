@@ -1,216 +1,203 @@
-import React, { Component} from "react";
+import React, {Component} from "react";
 import {hot} from "react-hot-loader";
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
-import {Navbar, Button, MenuItem, Tag, ControlGroup, Alignment} from  "@blueprintjs/core";
-import { Select } from "@blueprintjs/select";
+import {Navbar, Button, MenuItem, Tag, ControlGroup, Alignment} from "@blueprintjs/core";
+import {Select} from "@blueprintjs/select";
+import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
+import restConfig from "../dataExchange/connection/rest-config.json";
+
 const Web3 = require("web3");
 
-class Header extends Component{
+class Header extends Component {
 
-  state = {
-    storedConnections: [],
-    selectedConnection: '',
-    connected: false,
-
-    selectedAddress: '',
-    selectedPrivateKey: '',
-    storedAccounts: []
-  }
-
-
-  componentDidMount = async () =>  {
-
-    // GET CONNECTIONS FROM LOCAL STORAGE
-    let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
-    if(!web3Connections) {
-      web3Connections = new Array();
+    state = {
+        storedConnections: [],
+        selectedConnection: null,
+        connected: false,
+        selectedAccount: null,
+        selectedSettings: null,
+        storedAccounts: []
     }
 
-    if (window.ethereum) {
-      web3Connections.push("MetaMask");
+
+    componentDidMount = async () => {
+        // GET CONNECTIONS FROM THE DATABASE
+        ExchangeHandler.sendRequest('GET', restConfig.SERVER_URL + '/web3Connections').then(response => {
+            let web3Connections = response.data
+            if (!web3Connections) {
+                web3Connections = []
+            }
+            if (window.ethereum) {
+                web3Connections.push({address: "MetaMask"});
+            }
+            this.setState({storedConnections: web3Connections});
+        })
+
+        // GET ACCOUNTS FROM THE DATABASE
+        ExchangeHandler.sendRequest('GET', restConfig.SERVER_URL + '/accounts').then(response => {
+            this.setState({storedAccounts: response.data ? response.data : []})
+        })
+
+        // GET SELECTED SETTINGS FROM THE DATABASE
+        ExchangeHandler.sendRequest('GET', restConfig.SERVER_URL + '/settings?_expand=web3Connection&_expand=account')
+            .then(response => {
+                let settings = response.data[0]
+                this.setState({
+                    selectedConnection: settings.isMetamask ? {address: 'MetaMask'} : settings.web3Connection,
+                    selectedAccount: settings.account,
+                    selectedSettings: settings
+                })
+                this.tryConnect(settings.web3Connection)
+                const handler = this.props.setAndUpdateConnection
+                handler({
+                    selectedConnection: this.state.selectedConnection,
+                    selectedStoredAccount: this.state.selectedAccount
+                })
+            })
     }
-    
-    this.setState({ storedConnections: web3Connections });
 
-    // GET SELECTED CONNECTION FROM LOCAL STORAGE
-    let selectedConnectionFromStorage = localStorage.getItem("selectedConnection");
-    await this.setState({ selectedConnection: selectedConnectionFromStorage });
-    // AND TRY TO CONNECT
-    this.tryConnect(selectedConnectionFromStorage)
+    renderStoredAccounts = (storedAccount, {handleClick, modifiers}) => {
+        if (!modifiers.matchesPredicate) {
+            return null;
+        }
 
-    // GET ACCOUNTS FROM LOCAL STORAGE
-    let accounts = JSON.parse(localStorage.getItem("accounts"));
-    if(!accounts) {
-      accounts = new Array();
-    }
-    this.setState({ storedAccounts: accounts });
-
-    // GET SELECTED ACCOUNT FROM LOCAL STORAGE
-    await this.setState({ selectedAddress: localStorage.getItem("selectedAddress") });
-
-    var handler = this.props.setAndUpdateConnection;
-    handler({
-      selectedConnection: this.state.selectedConnection,
-      selectedStoredAccount: this.state.selectedAddress
-    }
-
-    );
-
-  }
-
-  renderStoredAccounts = (storedAccount, { handleClick, modifiers }) => {
-    if (!modifiers.matchesPredicate) {
-        return null;
-    }
-
-    return (
-        <MenuItem
-            active={modifiers.active}
-            key={storedAccount.addr}
-            onClick={handleClick}
-            text={storedAccount.addr}
-        />
-    );
+        return (
+            <MenuItem
+                active={modifiers.active}
+                key={storedAccount.address}
+                onClick={handleClick}
+                text={storedAccount.address}
+            />
+        );
     };
 
-    storedAccountSelected = async (e) =>  {
-      this.setState({
-        selectedAddress: e.addr,
-        selectedPrivateKey: e.priv
-      });
+    storedAccountSelected = async (e) => {
+        this.setState({
+            selectedAccount: e
+        });
 
-      localStorage.setItem("selectedAddress", e.addr)
-      localStorage.setItem("selectedPrivateKey", e.priv)
-
-      var handler = this.props.setAndUpdateConnection;
-      handler({
-        selectedConnection: this.state.selectedConnection,
-        selectedStoredAccount: this.state.selectedStoredAccount
-      })
-
-    } 
-
-  
-  renderStoredConnections = (storedConnection, { handleClick, modifiers }) => {
-    if (!modifiers.matchesPredicate) {
-        return null;
+        ExchangeHandler.sendRequest('PATCH', restConfig.SERVER_URL + '/settings/' + this.state.selectedSettings.id,
+            {accountId: e.id}).then(() => {
+            const handler = this.props.setAndUpdateConnection;
+            handler({
+                selectedConnection: this.state.selectedConnection,
+                selectedStoredAccount: this.state.selectedAccount
+            })
+        })
     }
-    return (
-        <MenuItem
-            active={modifiers.active}
-            key={storedConnection}
-            onClick={handleClick}
-            text={storedConnection}
-        />
-    );
+
+
+    renderStoredConnections = (storedConnection, {handleClick, modifiers}) => {
+        if (!modifiers.matchesPredicate) {
+            return null;
+        }
+        return (
+            <MenuItem
+                active={modifiers.active}
+                key={storedConnection.address}
+                onClick={handleClick}
+                text={storedConnection.address}
+            />
+        );
     };
 
-    storedConnectionSelected = async (e) =>  {
-      this.setState({
-          selectedConnection: e,
-          connectionSelected: true
-      });
+    storedConnectionSelected = async (e) => {
+        this.setState({
+            selectedConnection: e
+        });
 
-      localStorage.setItem("selectedConnection", e)
-
-      var handler = this.props.setAndUpdateConnection;
-      handler({
-        selectedConnection: e,
-        selectedStoredAccount: this.state.selectedStoredAccount
-      });
-      this.tryConnect(e);
-    } 
+        ExchangeHandler.sendRequest('PATCH', restConfig.SERVER_URL + '/settings/' + this.state.selectedSettings.id,
+            e.id ? {web3ConnectionId: e.id, isMetamask: false} : {isMetamask: true}).then(() => {
+            const handler = this.props.setAndUpdateConnection
+            handler({
+                selectedConnection: this.state.selectedConnection,
+                selectedStoredAccount: this.state.selectedAccount
+            })
+            this.tryConnect(e);
+        })
+    }
 
     tryConnect = async (e) => {
-      let testConnection;
-      if(this.state.selectedConnection === 'MetaMask') {
-        testConnection = window.ethereum;
-        console.log(testConnection)
-        this.setState({connected: 'true'});
-      }
-      else {
-        testConnection = new Web3(new Web3.providers.HttpProvider(e))
-        this.setState({connected: testConnection.currentProvider.connected});
+        let testConnection;
+        if (this.state.selectedConnection.address === 'MetaMask') {
+            testConnection = window.ethereum;
+            console.log(testConnection)
+            this.setState({connected: 'true'});
+        } else {
+            testConnection = new Web3(new Web3.providers.HttpProvider(e.address))
+        }
 
-      }
-
-      try {
-        let accounts = await testConnection.eth.getAccounts();
-      }
-      catch(err) {
-        console.error(`Cannot connect with selected Provider '${e}'`)
-        
-        this.setState({connected: false});
-        return;
-
-      }
-        this.setState({connected: testConnection.currentProvider.connected});
+        testConnection.eth.getAccounts().then(() => {
+            this.setState({connected: testConnection.currentProvider.connected})
+        }).catch(err => {
+            console.error(`Cannot connect with selected Provider '${e.address}'`)
+            this.setState({connected: false});
+        });
     }
 
 
-    render(){
-      var handler = this.props.setAndUpdateConnection;
+    render() {
+        const handler = this.props.setAndUpdateConnection;
 
-      return(
-        <Navbar>
-        <Navbar.Group >
-            <Navbar.Heading>
-            <img className="theimage" src='asset/chrysalis.png'/>
+        return (
+            <Navbar>
+                <Navbar.Group>
+                    <Navbar.Heading>
+                        <img className="theimage" src='asset/chrysalis.png'/>
 
-              <span> CHRYSALIS </span>
-              
-              </Navbar.Heading>
-            <Navbar.Divider />
-            <Link to='/'><Button className="bp3-minimal" icon="home" text="Home" /></Link>
-            <Link to='/deployNewProcess'><Button className="bp3-minimal" icon="new-object" text="Deploy Process" /></Link>
-            <Link to='/processes'><Button className="bp3-minimal" icon="exchange" text="All Processes" /></Link>
-            <Link to='/configure'><Button className="bp3-minimal" icon="cog" text="Configure" /></Link>
-            <Link to='/web3'><Button className="bp3-minimal" icon="info-sign" text="Info" /></Link>
-            <Link to='/accounts'><Button className="bp3-minimal" icon="user" text="Accounts" /></Link>
-            
-           
-        </Navbar.Group>
-        <Navbar.Group align={Alignment.RIGHT}>
+                        <span> CHRYSALIS </span>
 
-        <ControlGroup >
-
-                <Tag icon="user"  large="true"  > </Tag>
-                <Select
-                  items={this.state.storedAccounts}
-                  itemRenderer={this.renderStoredAccounts}
-                  noResults={<MenuItem disabled={true} text="No results." />}
-                  onItemSelect={this.storedAccountSelected}
-                >
-                  {/* children become the popover target; render value here */}
-                  <Button text={this.state.selectedAddress} rightIcon="double-caret-vertical" />
-                </Select>
-                </ControlGroup>
-              
+                    </Navbar.Heading>
+                    <Navbar.Divider/>
+                    <Link to='/'><Button className="bp3-minimal" icon="home" text="Home"/></Link>
+                    <Link to='/deployNewProcess'><Button className="bp3-minimal" icon="new-object"
+                                                         text="Deploy Process"/></Link>
+                    <Link to='/processes'><Button className="bp3-minimal" icon="exchange" text="All Processes"/></Link>
+                    <Link to='/configure'><Button className="bp3-minimal" icon="cog" text="Configure"/></Link>
+                    <Link to='/web3'><Button className="bp3-minimal" icon="info-sign" text="Info"/></Link>
+                    <Link to='/accounts'><Button className="bp3-minimal" icon="user" text="Accounts"/></Link>
 
 
+                </Navbar.Group>
+                <Navbar.Group align={Alignment.RIGHT}>
 
-              <ControlGroup style={{marginLeft: '20px'}}>
-                {
-                  this.state.connected ?
-                    <Tag icon="feed" intent="success" large="true"  > </Tag> :
-                    <Tag icon="offline" intent="danger" large="true"  > </Tag>
-                }
-                <Select
-                  items={this.state.storedConnections}
-                  itemRenderer={this.renderStoredConnections}
-                  noResults={<MenuItem disabled={true} text="No results." />}
-                  onItemSelect={this.storedConnectionSelected}
-                >
-                  {/* children become the popover target; render value here */}
-                  <Button text={this.state.selectedConnection} rightIcon="double-caret-vertical" />
-                </Select>
-              
-              </ControlGroup>
-            </Navbar.Group>
-    </Navbar>
-      );
+                    <ControlGroup>
+
+                        <Tag icon="user" large="true"> </Tag>
+                        <Select
+                            items={this.state.storedAccounts}
+                            itemRenderer={this.renderStoredAccounts}
+                            noResults={<MenuItem disabled={true} text="No results."/>}
+                            onItemSelect={this.storedAccountSelected}
+                        >
+                            {/* children become the popover target; render value here */}
+                            <Button text={this.state.selectedAccount ? this.state.selectedAccount.address : 'Choose Account'} rightIcon="double-caret-vertical"/>
+                        </Select>
+                    </ControlGroup>
+
+
+                    <ControlGroup style={{marginLeft: '20px'}}>
+                        {
+                            this.state.connected ?
+                                <Tag icon="feed" intent="success" large="true"> </Tag> :
+                                <Tag icon="offline" intent="danger" large="true"> </Tag>
+                        }
+                        <Select
+                            items={this.state.storedConnections}
+                            itemRenderer={this.renderStoredConnections}
+                            noResults={<MenuItem disabled={true} text="No results."/>}
+                            onItemSelect={this.storedConnectionSelected}
+                        >
+                            {/* children become the popover target; render value here */}
+                            <Button text={this.state.selectedConnection ? this.state.selectedConnection.address : 'Choose connection'} rightIcon="double-caret-vertical"/>
+                        </Select>
+
+                    </ControlGroup>
+                </Navbar.Group>
+            </Navbar>
+        );
     }
-  }
-  
-  export default hot(module)(Header);
+}
+
+export default hot(module)(Header);

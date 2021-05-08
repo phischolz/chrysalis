@@ -29,28 +29,19 @@ class Web3Info extends Component{
     currentNewUrl: ""
   };
 
-
-  connections = [];
+  SERVER_ENDPOINT = restConfig.SERVER_URL + '/web3Connections'
 
   /**
    * Getting connections from the database
    */
   fetchConnections = () => {
-    ExchangeHandler.sendRequest('GET', restConfig.SERVER_URL + '/web3Connections').then(response => {
+    ExchangeHandler.sendRequest('GET', this.SERVER_ENDPOINT).then(response => {
       this.setState({storedConnections: response.data})
     })
   }
 
   componentDidMount() {
     this.fetchConnections()
-    // let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
-    // if(!web3Connections) {
-    //   web3Connections = new Array();
-    // }
-    //
-    // this.setState({ storedConnections: web3Connections });
-
-    let ethereum = window.ethereum;
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       console.log(window.web3);
@@ -77,12 +68,12 @@ class Web3Info extends Component{
   }
 
   deleteConnection = (connection) => {
-    ExchangeHandler.sendRequest('DELETE', restConfig.SERVER_URL + '/web3Connections/' + connection.id)
+    ExchangeHandler.sendRequest('DELETE', this.SERVER_ENDPOINT + '/' + connection.id)
         .then(this.fetchConnections)
   }
   
   addNewConnection = async () => {
-    ExchangeHandler.sendRequest('POST', restConfig.SERVER_URL + '/web3Connections', {address: this.state.currentNewUrl})
+    ExchangeHandler.sendRequest('POST', this.SERVER_ENDPOINT, {address: this.state.currentNewUrl})
         .then(() => {
           this.setState({currentNewUrl: ""})
           this.fetchConnections()

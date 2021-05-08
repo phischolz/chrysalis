@@ -2,6 +2,7 @@ import GetRequestSender from "./requestSenders/GetRequestSender";
 import PostRequestSender from "./requestSenders/PostRequestSender";
 import DeleteRequestSender from "./requestSenders/DeleteRequestSender";
 import {hot} from "react-hot-loader";
+import PatchRequestSender from "./requestSenders/PatchRequestSender";
 
 class SenderRepository {
     /**
@@ -13,7 +14,8 @@ class SenderRepository {
         const connectParamsMap = new Map([
             ['GET', new GetRequestSender()],
             ['POST', new PostRequestSender()],
-            ['DELETE', new DeleteRequestSender()]
+            ['DELETE', new DeleteRequestSender()],
+            ['PATCH', new PatchRequestSender()]
         ])
 
         return connectParamsMap.get(methodName);

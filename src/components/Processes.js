@@ -37,17 +37,17 @@ enzian;
      
       this.loadContracts();
 
-      let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
-      if(!web3Connections) {
-        web3Connections = new Array();
-      }
- 
-      if (window.ethereum) {
-        web3Connections.push("MetaMask");
-      }
-
-
-      this.setState({ storedConnections: web3Connections });
+      // let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
+      // if(!web3Connections) {
+      //   web3Connections = new Array();
+      // }
+      //
+      // if (window.ethereum) {
+      //   web3Connections.push("MetaMask");
+      // }
+      //
+      //
+      // this.setState({ storedConnections: web3Connections });
 
     }
 
@@ -75,12 +75,12 @@ enzian;
     this.setState({ selectedContract: e });
 
     if(!this.enzian) {
-      if(this.state.selectedConnection === 'MetaMask') {
+      if(this.state.selectedConnection.address === 'MetaMask') {
 
         this.enzian = new EnzianYellow(window.ethereum);
       }
       else {
-        this.enzian = new EnzianYellow(new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection)));
+        this.enzian = new EnzianYellow(new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection.address)));
 
       }
     }
@@ -95,7 +95,7 @@ enzian;
 
     this.setState({waitForVerification: true})
 
-    switch(this.state.selectedConnection) {
+    switch(this.state.selectedConnection.address) {
       case 'MetaMask':
       
         this.enzian = new EnzianYellow(window.ethereum);
@@ -107,7 +107,7 @@ enzian;
       
       break;
       default:
-        this.enzian = new EnzianYellow(new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection)));
+        this.enzian = new EnzianYellow(new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection.address)));
         theresult = await this.enzian.executeTaskBySelfSigned(
           this.state.selectedContract,
           this.state.taskToBeExecuted,
