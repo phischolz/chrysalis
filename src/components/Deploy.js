@@ -2,12 +2,13 @@ import React, { Component } from "react";
 import {hot} from "react-hot-loader";
 import ReactJson from 'react-json-view'
 import Header from './Header';
-import { Select } from "@blueprintjs/select";
+
+//import { Select } from "@blueprintjs/select";
 const Web3 = require("web3");
 
 
 import {
-  AnchorButton,
+  //AnchorButton,
   Button,
   FileInput,
   Radio,
@@ -39,25 +40,29 @@ class Deploy extends Component{
 
     }
     
-    enzian = new EnzianYellow(window.ethereum);
+    enzian;
+    constructor(props) {
+        super(props);
+        this.enzian = new EnzianYellow(window.ethereum);
+    }
 
     componentDidMount() {
-      let abis = JSON.parse(localStorage.getItem('abis'));
-      if(!abis) {
-          abis = new Array();
-      }
-      this.setState({storedAbiNames: abis.map(abi => abi.key)})
+        let abis = JSON.parse(localStorage.getItem('abis'));
+        if(!abis) {
+          abis = [];
+        }
+        this.setState({storedAbiNames: abis.map(abi => abi.key)})
 
-      let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
-      if(!web3Connections) {
-        web3Connections = new Array();
-      }
- 
-      if (window.ethereum) {
+        let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
+        if(!web3Connections) {
+        web3Connections = [];
+        }
+
+        if (window.ethereum) {
         web3Connections.push("MetaMask");
-      }
-      
-      this.setState({ storedConnections: web3Connections });
+        }
+
+        this.setState({ storedConnections: web3Connections });
   
     }
 
@@ -72,6 +77,7 @@ class Deploy extends Component{
     readBPMN = async (e) => {
         e.preventDefault()
         const reader = new FileReader()
+
         reader.onload = async (e) => { 
           const text = (e.target.result)
           console.log(text);
@@ -80,9 +86,8 @@ class Deploy extends Component{
 
           console.log(parsedBPMN);
           this.setState({ enzianModel: parsedBPMN })
-
-
         };
+
         reader.readAsText(e.target.files[0]);
         this.setState({selectedFile: e.target.files[0].name});
 
@@ -127,6 +132,7 @@ class Deploy extends Component{
         }
         console.log("deploying with ", this.state.selectedConnection)
 
+        let result, contracts;
         switch(this.state.selectedConnection) {
           case 'MetaMask':
           
@@ -134,41 +140,31 @@ class Deploy extends Component{
 
              // SELF SIGNED
 
-                let theresult = await this.enzian.deployEnzianModelWithAbi(this.state.enzianModel, this.state.selectedAbi);
+            result = await this.enzian.deployEnzianModel(this.state.enzianModel, this.state.selectedAbi);
 
-                let contracts = JSON.parse(localStorage.getItem("contracts"));
-                if(!contracts) {
-                  contracts = new Array();
-                }
-                contracts.push(theresult._address);
-                localStorage.setItem("contracts", JSON.stringify(contracts));
-            
-                //
-          
-          
-          
-          break;
+            contracts = JSON.parse(localStorage.getItem("contracts"));
+            if(!contracts) {
+              contracts = [];
+            }
+            contracts.push(result._address);
+            localStorage.setItem("contracts", JSON.stringify(contracts));
+
+            break;
           default:
             this.enzian = new EnzianYellow(new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection)));
 
              // SELF SIGNED
+            console.log('pk', localStorage.getItem('selectedPrivateKey'));
+            console.log("selected Abi:", this.state.selectedAbi)
 
-                console.log('pk', localStorage.getItem('selectedPrivateKey'));
-              console.log("selected Abi:", this.state.selectedAbi)
+            result = await this.enzian.deployEnzianModel(this.state.enzianModel, this.state.selectedAbi, localStorage.getItem('selectedPrivateKey'));
 
-                  theresult = await this.enzian.deployEnzianModelWithAbiSelfSigned(this.state.enzianModel, this.state.selectedAbi, localStorage.getItem('selectedPrivateKey'));
-
-
-                contracts = JSON.parse(localStorage.getItem("contracts"));
-                if(!contracts) {
-                  contracts = new Array();
-                }
-                contracts.push(theresult);
-                localStorage.setItem("contracts", JSON.stringify(contracts));
-            
-                //
-
-
+            contracts = JSON.parse(localStorage.getItem("contracts"));
+            if(!contracts) {
+              contracts = [];
+            }
+            contracts.push(result);
+            localStorage.setItem("contracts", JSON.stringify(contracts));
             break;
         }
 

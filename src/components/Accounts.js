@@ -9,12 +9,11 @@ import {
   RadioGroup,
   ControlGroup,
   Radio,
-  Icon,
-  InputGroup,
-  Tag
-
+  //Icon,
+  //Tag,
+  InputGroup
 } from "@blueprintjs/core";
-import { Select } from "@blueprintjs/select";
+// import { Select } from "@blueprintjs/select";
 
 
 class Accounts extends Component {
@@ -34,12 +33,16 @@ class Accounts extends Component {
 
   connections = [];
 
+  /**
+   *
+   */
   componentDidMount() {
+
 
     // GET CONNECTIONS FROM LOCAL STORAGE
     let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
     if(!web3Connections) {
-      web3Connections = new Array();
+      web3Connections = [];
     }
 
     if (window.ethereum) {
@@ -51,7 +54,7 @@ class Accounts extends Component {
     // GET ACCOUNTS FROM LOCAL STORAGE
     let accounts = JSON.parse(localStorage.getItem("accounts"));
     if(!accounts) {
-      accounts = new Array();
+      accounts = [];
     }
     this.setState({ storedAccounts: accounts });
     
@@ -81,7 +84,7 @@ class Accounts extends Component {
 
         let accounts = JSON.parse(localStorage.getItem("accounts"));
         if(!accounts) {
-          accounts = new Array();
+          accounts = [];
         }
         accounts.push({priv: newAccount.privateKey, addr: newAccount.address});
         localStorage.setItem("accounts", JSON.stringify(accounts));
@@ -107,7 +110,7 @@ class Accounts extends Component {
 
     let accounts = JSON.parse(localStorage.getItem("accounts"));
     if(!accounts) {
-      accounts = new Array();
+      accounts = [];
     }
     accounts.push({priv: this.state.currentImportAccount, addr: importedAccount.address});
     localStorage.setItem("accounts", JSON.stringify(accounts));
