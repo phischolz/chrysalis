@@ -25,5 +25,20 @@
       "web3ConnectionId": "1",
       "accountId": "1"
     }
+  ],
+  "processes": [
+    {
+      "id": "1",
+      "address": "test",
+      "name": "test"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1",
+      "processId": "1",
+      "name": "Test task",
+      "number": "0"
+    }
   ]
 }

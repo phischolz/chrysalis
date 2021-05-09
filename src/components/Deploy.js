@@ -34,11 +34,12 @@ class Deploy extends Component {
         selectedAbi: '',
         storedAbis: [],
         selectedStoredAbiId: 'custom',
+        selectedStoredAccount: null,
 
         storedConnections: [],
         selectedConnection: '',
         isDialogOpen: false,
-        deploymentProgress: 1
+        deploymentProgress: 1,
     }
 
     enzian = new EnzianYellow(window.ethereum);
@@ -47,23 +48,6 @@ class Deploy extends Component {
         ExchangeHandler.sendRequest('GET', restConfig.SERVER_URL + '/abis').then(response => {
             this.setState({storedAbis: response.data})
         })
-        // let abis = JSON.parse(localStorage.getItem('abis'));
-        // if (!abis) {
-        //     abis = new Array();
-        // }
-        // this.setState({storedAbis: abis.map(abi => abi.key)})
-
-        // let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
-        // if (!web3Connections) {
-        //     web3Connections = new Array();
-        // }
-        //
-        // if (window.ethereum) {
-        //     web3Connections.push("MetaMask");
-        // }
-        //
-        // this.setState({storedConnections: web3Connections});
-
     }
 
     selectedStoredAbiChanged = (event) => {
@@ -134,12 +118,7 @@ class Deploy extends Component {
                 // SELF SIGNED
                 let theresult = await this.enzian.deployEnzianModelWithAbi(this.state.enzianModel, this.state.selectedAbi);
 
-                let contracts = JSON.parse(localStorage.getItem("contracts"));
-                if (!contracts) {
-                    contracts = new Array();
-                }
-                contracts.push(theresult._address);
-                localStorage.setItem("contracts", JSON.stringify(contracts));
+                this.postContract(theresult)
                 break;
 
             default:
@@ -152,17 +131,7 @@ class Deploy extends Component {
 
                 theresult = await this.enzian.deployEnzianModelWithAbiSelfSigned(this.state.enzianModel, this.state.selectedAbi, localStorage.getItem('selectedPrivateKey'));
 
-
-                contracts = JSON.parse(localStorage.getItem("contracts"));
-                if (!contracts) {
-                    contracts = new Array();
-                }
-                contracts.push(theresult);
-                localStorage.setItem("contracts", JSON.stringify(contracts));
-
-                //
-
-
+                this.postContract(theresult)
                 break;
         }
 
@@ -171,9 +140,40 @@ class Deploy extends Component {
 
     }
 
+    /**
+     * Posting depolyed contract and its tasks to the database
+     * @param contract
+     */
+    postContract = (contract) => {
+        // TAKING MODEL NAME FROM THE UPLOADED FILE
+        let contractName = this.state.selectedFile.substr(0, this.state.selectedFile.indexOf('.'))
+        ExchangeHandler.sendRequest('POST', restConfig.SERVER_URL + '/processes', {name: contractName, address: contract})
+            .then(response => {
+                console.log(response)
+                let deployedModelId = response.data.id
+                let tasks = this.state.enzianModel.obj.map(obj => obj.task)
+                if (Array.isArray(tasks)) {
+                    this.postTasks(deployedModelId, tasks)
+                }
+            })
+    }
+
+    /**
+     * Post model's task to the database
+     * @param processId - id of the deployed model
+     * @param tasks - posted tasks
+     */
+    postTasks = async (processId, tasks) => {
+        for (let task of tasks) {
+            await ExchangeHandler.sendRequest('POST', restConfig.SERVER_URL + '/tasks',
+                {number: task.id, name: task.name, processId: processId})
+        }
+    }
+
     setAndUpdateConnection = (value) => {
         this.setState({
             selectedConnection: value.selectedConnection,
+            selectedStoredAccount: value.selectedStoredAccount
         })
     }
 

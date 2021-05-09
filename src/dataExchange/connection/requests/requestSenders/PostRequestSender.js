@@ -1,9 +1,9 @@
 class PostRequestSender {
     /**
-     * Posting data to the database
+     Posting data to the database
      * @param url - request address
      * @param data - entities to post
-     * @returns {Promise<Response>} - asynchronous response, containing error if present
+     * @returns {Promise<{data: *, error: null} | {data: null, error: *}>} - asynchronous response, containing posted data or error if present
      */
     send = (url, data) => {
         return fetch(url, {
@@ -14,8 +14,11 @@ class PostRequestSender {
             if (!res.ok) {
                 throw new Error("Couldn't post the data to the database")
             }
+            return res.json()
+        }).then(data => {
+            return {data: data, error: null}
         }).catch(err => {
-            return err.message
+            return {data: null, error: err.message}
         })
     }
 }
