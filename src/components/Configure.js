@@ -25,7 +25,7 @@ class Configure extends Component {
     componentDidMount() {
         let abis = JSON.parse(localStorage.getItem('abis'));
         if(!abis) {
-            abis = new Array();
+            abis = [];
         }
         this.setState({storedAbiNames: abis.map(abi => abi.key)})
     }
@@ -44,7 +44,7 @@ class Configure extends Component {
     storeNetworkConfig = async () => {
         let abis = JSON.parse(localStorage.getItem("abis"));
         if(!abis) {
-            abis = new Array();
+            abis = [];
         }
         abis.push({key: this.state.currentAbiName, abi: this.state.currentAbi });
         localStorage.setItem("abis", JSON.stringify(abis));

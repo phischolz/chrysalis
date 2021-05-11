@@ -34,27 +34,23 @@ class Web3Info extends Component{
 
     let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
     if(!web3Connections) {
-      web3Connections = new Array();
+      web3Connections = [];
     }
 
     this.setState({ storedConnections: web3Connections });
 
-    let ethereum = window.ethereum;
     if (window.ethereum) {
-      let connected;
-      
-      connected = ethereum.isConnected();
+
+      //let connected;
+      //connected = ethereum.isConnected();
 
 
       window.web3 = new Web3(window.ethereum);
-      let result =  window.ethereum.send('eth_requestAccounts').then(r => console.log("r", r));
+      window.ethereum.send('eth_requestAccounts')
+          .then(r => console.log("r", r));
       console.log(window.web3);
-      window.web3.eth.getAccounts().then(accounts => {
-        this.setState({metaMask: accounts[0]});
-      });
-
-
-      return;
+      window.web3.eth.getAccounts()
+          .then(accounts => {this.setState({metaMask: accounts[0]});});
     }
     else {
       this.web3 = new Web3(new Web3.providers.WebsocketProvider("ws://localhost:8545"));
@@ -64,11 +60,7 @@ class Web3Info extends Component{
           connectionUrl: this.web3._provider.url
         });
       console.log(this.web3);
-
-      return;
     }
-    this.setState({metaMask: "still false"});
-    
   }
 
 
@@ -86,7 +78,7 @@ class Web3Info extends Component{
   addNewConnection = async () => {
     let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
     if(!web3Connections) {
-      web3Connections = new Array();
+      web3Connections = [];
     }
     web3Connections.push(this.state.currentNewUrl);
     localStorage.setItem("web3Connections", JSON.stringify(web3Connections));

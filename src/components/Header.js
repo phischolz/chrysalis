@@ -24,7 +24,7 @@ class Header extends Component{
     // GET CONNECTIONS FROM LOCAL STORAGE
     let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
     if(!web3Connections) {
-      web3Connections = new Array();
+      web3Connections = [];
     }
 
     if (window.ethereum) {
@@ -42,7 +42,7 @@ class Header extends Component{
     // GET ACCOUNTS FROM LOCAL STORAGE
     let accounts = JSON.parse(localStorage.getItem("accounts"));
     if(!accounts) {
-      accounts = new Array();
+      accounts = [];
     }
     this.setState({ storedAccounts: accounts });
 
@@ -114,12 +114,12 @@ class Header extends Component{
 
       localStorage.setItem("selectedConnection", e)
 
-      var handler = this.props.setAndUpdateConnection;
+      let handler = this.props.setAndUpdateConnection;
       handler({
         selectedConnection: e,
         selectedStoredAccount: this.state.selectedStoredAccount
       });
-      this.tryConnect(e);
+      await this.tryConnect(e);
     } 
 
     tryConnect = async (e) => {
@@ -136,7 +136,7 @@ class Header extends Component{
       }
 
       try {
-        let accounts = await testConnection.eth.getAccounts();
+        await testConnection.eth.getAccounts();
       }
       catch(err) {
         console.error(`Cannot connect with selected Provider '${e}'`)
@@ -150,13 +150,13 @@ class Header extends Component{
 
 
     render(){
-      var handler = this.props.setAndUpdateConnection;
+      //let handler = this.props.setAndUpdateConnection;
 
       return(
         <Navbar>
         <Navbar.Group >
             <Navbar.Heading>
-            <img className="theimage" src='asset/chrysalis.png'/>
+            <img className="theimage" src='asset/chrysalis.png' alt=""/>
 
               <span> CHRYSALIS </span>
               

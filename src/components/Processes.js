@@ -51,6 +51,7 @@ class Processes extends Component{
 
   }
 
+  // noinspection JSUnusedLocalSymbols
   handleValueChange = (valueAsNumber, valueAsString) => {
     this.setState({ taskToBeExecuted: valueAsNumber });
   };
@@ -105,7 +106,7 @@ class Processes extends Component{
           this.state.selectedContract,
           this.state.taskToBeExecuted
         );
-        console.log(result);
+        console.log("tx returned:   ", result);
       
       break;
       default:
@@ -115,7 +116,7 @@ class Processes extends Component{
           this.state.taskToBeExecuted,
           localStorage.getItem('selectedPrivateKey')
         );
-        console.log(result);
+        console.log("tx returned: ", result);
         break;
     }
 

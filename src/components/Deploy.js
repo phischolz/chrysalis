@@ -146,7 +146,7 @@ class Deploy extends Component{
             if(!contracts) {
               contracts = [];
             }
-            contracts.push(result._address);
+            contracts.push(result);
             localStorage.setItem("contracts", JSON.stringify(contracts));
 
             break;
