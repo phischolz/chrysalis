@@ -40,15 +40,18 @@ class Header extends Component {
         })
 
         // GET SELECTED SETTINGS FROM THE DATABASE
-        ExchangeHandler.sendRequest('GET', restConfig.SERVER_URL + '/settings?_expand=web3Connection&_expand=account')
+        ExchangeHandler.sendRequest('GET', restConfig.SERVER_URL + '/settings')
             .then(response => {
-                let settings = response.data[0]
-                this.setState({
-                    selectedConnection: settings.isMetamask ? {address: 'MetaMask'} : settings.web3Connection,
-                    selectedAccount: settings.account,
-                    selectedSettings: settings
-                })
-                this.tryConnect(settings.web3Connection)
+                if (response.data.length !== 0) {
+                    let settings = response.data[0]
+                    this.setState({
+                        selectedConnection: settings.isMetamask ? {address: 'MetaMask'} : settings.web3Connection,
+                        selectedAccount: settings.account,
+                        selectedSettings: settings
+                    })
+                    this.tryConnect(settings.web3Connection)
+                }
+
                 const handler = this.props.setAndUpdateConnection
                 handler({
                     selectedConnection: this.state.selectedConnection,
@@ -77,14 +80,20 @@ class Header extends Component {
             selectedAccount: e
         });
 
-        ExchangeHandler.sendRequest('PATCH', restConfig.SERVER_URL + '/settings/' + this.state.selectedSettings.id,
-            {accountId: e.id}).then(() => {
-            const handler = this.props.setAndUpdateConnection;
-            handler({
-                selectedConnection: this.state.selectedConnection,
-                selectedStoredAccount: this.state.selectedAccount
+        let selectedSettings = this.state.selectedSettings
+        ExchangeHandler.sendRequest(selectedSettings ? 'PATCH' : 'POST', restConfig.SERVER_URL + '/settings/' + (selectedSettings ? selectedSettings.id : ''),
+            selectedSettings ? {accountId: e.id} : {accountId: e.id, isMetamask: false})
+            .then(response => {
+                if (!selectedSettings) {
+                    log(response.data)
+                    this.setState({selectedSettings: response.data})
+                }
+                const handler = this.props.setAndUpdateConnection;
+                handler({
+                    selectedConnection: this.state.selectedConnection,
+                    selectedStoredAccount: this.state.selectedAccount
+                })
             })
-        })
     }
 
 
@@ -107,15 +116,21 @@ class Header extends Component {
             selectedConnection: e
         });
 
-        ExchangeHandler.sendRequest('PATCH', restConfig.SERVER_URL + '/settings/' + this.state.selectedSettings.id,
-            e.id ? {web3ConnectionId: e.id, isMetamask: false} : {isMetamask: true}).then(() => {
-            const handler = this.props.setAndUpdateConnection
-            handler({
-                selectedConnection: this.state.selectedConnection,
-                selectedStoredAccount: this.state.selectedAccount
+        let selectedSettings = this.state.selectedSettings
+        ExchangeHandler.sendRequest(selectedSettings ? 'PATCH' : 'POST', restConfig.SERVER_URL + '/settings/' + (selectedSettings ? selectedSettings.id : ''),
+            e.id ? {web3ConnectionId: e.id, isMetamask: false} : {isMetamask: true})
+            .then(response => {
+                if (!selectedSettings) {
+                    log(response.data)
+                    this.setState({selectedSettings: response.data})
+                }
+                const handler = this.props.setAndUpdateConnection
+                handler({
+                    selectedConnection: this.state.selectedConnection,
+                    selectedStoredAccount: this.state.selectedAccount
+                })
+                this.tryConnect(e);
             })
-            this.tryConnect(e);
-        })
     }
 
     tryConnect = async (e) => {
@@ -172,7 +187,9 @@ class Header extends Component {
                             onItemSelect={this.storedAccountSelected}
                         >
                             {/* children become the popover target; render value here */}
-                            <Button text={this.state.selectedAccount ? this.state.selectedAccount.address : 'Choose Account'} rightIcon="double-caret-vertical"/>
+                            <Button
+                                text={this.state.selectedAccount ? this.state.selectedAccount.address : 'Choose Account'}
+                                rightIcon="double-caret-vertical"/>
                         </Select>
                     </ControlGroup>
 
@@ -190,7 +207,9 @@ class Header extends Component {
                             onItemSelect={this.storedConnectionSelected}
                         >
                             {/* children become the popover target; render value here */}
-                            <Button text={this.state.selectedConnection ? this.state.selectedConnection.address : 'Choose connection'} rightIcon="double-caret-vertical"/>
+                            <Button
+                                text={this.state.selectedConnection ? this.state.selectedConnection.address : 'Choose connection'}
+                                rightIcon="double-caret-vertical"/>
                         </Select>
 
                     </ControlGroup>

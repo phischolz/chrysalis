@@ -103,7 +103,7 @@ class Configure extends Component {
                             >
                                 {
                                         this.state.storedAbis.map(abi => {
-                                            return (<Radio key={abi.id} value={abi.id} label={abi.key} />)
+                                            return (<Radio key={abi.id.toString()} value={abi.id.toString()} label={abi.key} />)
                                         })
                                 }
                             </RadioGroup>

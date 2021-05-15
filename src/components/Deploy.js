@@ -103,7 +103,7 @@ class Deploy extends Component {
                 if (this.state.selectedStoredAbiId === 'custom') {
                     console.log("Reading network from file");
                 } else {
-                    let selectedStoredAbi = this.state.storedAbis.find(abi => abi.id === this.state.selectedStoredAbiId)
+                    let selectedStoredAbi = this.state.storedAbis.find(abi => abi.id.toString() === this.state.selectedStoredAbiId)
                     await this.setState({selectedAbi: JSON.parse(selectedStoredAbi.abi)});
                     console.log("STATE SET")
                 }
@@ -147,27 +147,10 @@ class Deploy extends Component {
     postContract = (contract) => {
         // TAKING MODEL NAME FROM THE UPLOADED FILE
         let contractName = this.state.selectedFile.substr(0, this.state.selectedFile.indexOf('.'))
-        ExchangeHandler.sendRequest('POST', restConfig.SERVER_URL + '/processes', {name: contractName, address: contract})
-            .then(response => {
-                console.log(response)
-                let deployedModelId = response.data.id
-                let tasks = this.state.enzianModel.obj.map(obj => obj.task)
-                if (Array.isArray(tasks)) {
-                    this.postTasks(deployedModelId, tasks)
-                }
-            })
-    }
-
-    /**
-     * Post model's task to the database
-     * @param processId - id of the deployed model
-     * @param tasks - posted tasks
-     */
-    postTasks = async (processId, tasks) => {
-        for (let task of tasks) {
-            await ExchangeHandler.sendRequest('POST', restConfig.SERVER_URL + '/tasks',
-                {number: task.id, name: task.name, processId: processId})
-        }
+        let tasks = this.state.enzianModel.obj.map(obj => {
+            return {number: obj.task.id, name: obj.task.name}
+        })
+        ExchangeHandler.sendRequest('POST', restConfig.SERVER_URL + '/processes', {name: contractName, address: contract, tasks: Array.isArray(tasks) ? tasks : []})
     }
 
     setAndUpdateConnection = (value) => {
@@ -248,7 +231,7 @@ class Deploy extends Component {
                                                     {
                                                         this.state.storedAbis.map(abi => {
                                                             return (
-                                                                <Radio key={abi.id} value={abi.id} label={abi.key}/>)
+                                                                <Radio key={abi.id.toString()} value={abi.id.toString()} label={abi.key}/>)
                                                         })
                                                     }
                                                     <Radio key="custom" value="custom" label="Custom"/>

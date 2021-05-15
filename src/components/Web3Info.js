@@ -36,7 +36,7 @@ class Web3Info extends Component{
    */
   fetchConnections = () => {
     ExchangeHandler.sendRequest('GET', this.SERVER_ENDPOINT).then(response => {
-      this.setState({storedConnections: response.data})
+      this.setState({storedConnections: response.data ? response.data : []})
     })
   }
 
@@ -73,6 +73,7 @@ class Web3Info extends Component{
   }
   
   addNewConnection = async () => {
+    console.log(this.state.currentNewUrl)
     ExchangeHandler.sendRequest('POST', this.SERVER_ENDPOINT, {address: this.state.currentNewUrl})
         .then(() => {
           this.setState({currentNewUrl: ""})

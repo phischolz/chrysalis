@@ -37,7 +37,7 @@ class Processes extends Component {
      * Get contracts from a database
      */
     fetchContracts = () => {
-        ExchangeHandler.sendRequest('GET', this.SERVER_ENDPOINT + '?_embed=tasks').then(response => {
+        ExchangeHandler.sendRequest('GET', this.SERVER_ENDPOINT).then(response => {
             this.setState({storedContracts: response.data})
         })
     }
