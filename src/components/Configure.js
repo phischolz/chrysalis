@@ -12,22 +12,32 @@ import {
     InputGroup,
     Radio
 } from  "@blueprintjs/core";
+import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
+import restConfig from "../dataExchange/connection/rest-config.json";
 
 class Configure extends Component {
 
     state = {
         selectedFile: "Select a file...",
-        storedAbiNames: [],
+        selectedStoredAbi: '',
+        storedAbis: [],
         currentAbi: "",
         currentAbiName: ""
     }
 
+    SERVER_ENDPOINT = restConfig.SERVER_URL + '/abis'
+
+    /**
+     * Getting list of abi configs from the database and updating state
+     */
+    fetchAbis = () => {
+        ExchangeHandler.sendRequest('GET', this.SERVER_ENDPOINT).then(response => {
+            this.setState({storedAbis: response.data})
+        })
+    }
+
     componentDidMount() {
-        let abis = JSON.parse(localStorage.getItem('abis'));
-        if(!abis) {
-            abis = [];
-        }
-        this.setState({storedAbiNames: abis.map(abi => abi.key)})
+        this.fetchAbis()
     }
 
     readConfig = async (e) => {
@@ -42,20 +52,14 @@ class Configure extends Component {
     }
 
     storeNetworkConfig = async () => {
-        let abis = JSON.parse(localStorage.getItem("abis"));
-        if(!abis) {
-            abis = [];
-        }
-        abis.push({key: this.state.currentAbiName, abi: this.state.currentAbi });
-        localStorage.setItem("abis", JSON.stringify(abis));
-        this.setState({storedAbiNames: abis.map(abi => abi.key)})
+        ExchangeHandler.sendRequest('POST', this.SERVER_ENDPOINT,
+            {key: this.state.currentAbiName, abi: this.state.currentAbi})
+            .then(this.fetchAbis)
     }
 
     deleteNetworkConfig = async () => {
-        let abis = JSON.parse(localStorage.getItem("abis"));
-        abis = abis.filter(abi => abi.key !== this.state.selectedStoredAbi)
-        localStorage.setItem("abis", JSON.stringify(abis));
-        this.setState({storedAbiNames: abis.map(abi => abi.key)})
+        ExchangeHandler.sendRequest('DELETE', this.SERVER_ENDPOINT + '/' + this.state.selectedStoredAbi)
+            .then(this.fetchAbis)
     }
       
     selectedStoredAbiChanged = (event) => {
@@ -98,8 +102,8 @@ class Configure extends Component {
                                 selectedValue={this.state.selectedStoredAbi}
                             >
                                 {
-                                        this.state.storedAbiNames.map(abiName => {
-                                            return (<Radio key={abiName} value={abiName} label={abiName} />)
+                                        this.state.storedAbis.map(abi => {
+                                            return (<Radio key={abi.id.toString()} value={abi.id.toString()} label={abi.key} />)
                                         })
                                 }
                             </RadioGroup>

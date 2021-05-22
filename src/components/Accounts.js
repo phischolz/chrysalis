@@ -1,178 +1,155 @@
-import React, { Component} from "react";
+import React, {Component} from "react";
 import {hot} from "react-hot-loader";
 import Header from './Header';
+
 const Web3 = require("web3");
 
 
-import { 
-  Button,
-  RadioGroup,
-  ControlGroup,
-  Radio,
-  //Icon,
-  //Tag,
-  InputGroup
+import {
+    Button,
+    RadioGroup,
+    ControlGroup,
+    Radio,
+    //Icon,
+    //Tag,
+    InputGroup
 } from "@blueprintjs/core";
 // import { Select } from "@blueprintjs/select";
+import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
+import restConfig from "../dataExchange/connection/rest-config.json";
 
 
 class Accounts extends Component {
 
 
-  state = {
-    storedConnections: [],
-    selectedConnection: '',
-    connectionSelected: false,
+    state = {
+        selectedConnection: '',
+        connectionSelected: false,
 
-    selectedStoredAccount: '',
-    storedAccounts: [],
+        selectedStoredAccount: '',
+        storedAccounts: [],
 
-    currentImportAccount: ''
-  };
+        currentImportAccount: ''
+    };
 
+    SERVER_ENDPOINT = restConfig.SERVER_URL + '/accounts'
 
-  connections = [];
-
-  /**
-   *
-   */
-  componentDidMount() {
-
-
-    // GET CONNECTIONS FROM LOCAL STORAGE
-    let web3Connections = JSON.parse(localStorage.getItem("web3Connections"));
-    if(!web3Connections) {
-      web3Connections = [];
+    /**
+     * Get accounts from the database and update the state
+     */
+    fetchAccounts = () => {
+        ExchangeHandler.sendRequest('GET', this.SERVER_ENDPOINT).then(response => {
+            this.setState({storedAccounts: response.data})
+        })
     }
 
-    if (window.ethereum) {
-      web3Connections.push("MetaMask");
+    /**
+     * Post an account to the database and fetch the state
+     * @param accountData - account being posted
+     */
+    postAccount = (accountData) => {
+        ExchangeHandler.sendRequest('POST', this.SERVER_ENDPOINT, accountData)
+            .then(this.fetchAccounts)
     }
-    
-    this.setState({ storedConnections: web3Connections });
 
-    // GET ACCOUNTS FROM LOCAL STORAGE
-    let accounts = JSON.parse(localStorage.getItem("accounts"));
-    if(!accounts) {
-      accounts = [];
+    componentDidMount() {
+        this.fetchAccounts()
     }
-    this.setState({ storedAccounts: accounts });
-    
-  }
 
-  setAndUpdateConnection = (value) => {
-    this.setState({
-      selectedConnection: value.selectedConnection,
-      selectedStoredAccount: value.selectedStoredAccount
-    })
-  }
+    setAndUpdateConnection = (value) => {
+        this.setState({
+            selectedConnection: value.selectedConnection,
+            selectedStoredAccount: value.selectedStoredAccount
+        })
+    }
 
-  createAccount = async () => {
+    createAccount = async () => {
 
+        console.log("New contract with ", this.state.selectedConnection.address)
 
-    console.log("New contract with ", this.state.selectedConnection)
-
-
-    switch(this.state.selectedConnection) {
-      case 'MetaMask': break;
-      default:
-        let web3Instance = new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection));
-        let newAccount = await web3Instance.eth.accounts.create();
-        console.log('newAccount', newAccount);
-        // localStorage.setItem('privateKey', newAccount.privateKey);
-        // localStorage.setItem('address', newAccount.address);
-
-        let accounts = JSON.parse(localStorage.getItem("accounts"));
-        if(!accounts) {
-          accounts = [];
+        switch (this.state.selectedConnection.address) {
+            case 'MetaMask': break;
+            default:
+                let web3Instance = new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection.address));
+                let newAccount = await web3Instance.eth.accounts.create();
+                console.log('newAccount', newAccount);
+                this.postAccount({address: newAccount.address, privateKey: newAccount.privateKey})
+                break;
         }
-        accounts.push({priv: newAccount.privateKey, addr: newAccount.address});
-        localStorage.setItem("accounts", JSON.stringify(accounts));
+    }
 
+    updateInputImportAccount = (event) => {
+        this.setState({currentImportAccount: event.target.value});
+    }
 
-        break;
+    importAccount = () => {
+        let web3Instance = new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection.address));
+        let importedAccount = web3Instance.eth.accounts.privateKeyToAccount(this.state.currentImportAccount);
+        this.postAccount({address: importedAccount.address, privateKey: importedAccount.privateKey})
+    }
+
+    selectedStoredAccountChanged = (event) => {
+        this.setState({selectedStoredAccount: event.target.value});
     }
 
 
-  
+    render() {
+        return (
+            <div>
+                <Header setAndUpdateConnection={this.setAndUpdateConnection}/>
+                <div className="content">
+                    <h1>{this.state.handlerValue}</h1>
+                    <h1>Account Management</h1>
+                    <h3>Create a new Account</h3>
+                    <p>This generates a new Keypair. However, please consider, that the new Account do not have any
+                        funds on any network.</p>
+                    <ControlGroup>
+                        {
+                            <Button
+                                intent="primary"
+                                rightIcon="send-to-graph"
+                                text="Create new Account"
+                                onClick={this.createAccount}
+                            />
+                        }
+                    </ControlGroup>
 
-  }
+                    <h3>Import an Account</h3>
+                    <p>This generates a new Keypair. However, please consider, that the new Account do not have any
+                        funds on any network.</p>
+                    <ControlGroup>
+                        <InputGroup onChange={this.updateInputImportAccount} id="text-input"
+                                    placeholder="Paste your private key here..." intent="primary" style={{
+                            width: '800px',
+                            fontFamily: 'Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace'
+                        }}/>
+                        {
+                            <Button
+                                intent="primary"
+                                rightIcon="import"
+                                text="Import Account"
+                                onClick={this.importAccount}
+                            />
+                        }
+                    </ControlGroup>
 
 
-  updateInputImportAccount = (event) => {
-    this.setState({currentImportAccount : event.target.value});
-  }
-
-  importAccount = () => {
-    let web3Instance = new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection));
-
-    let importedAccount = web3Instance.eth.accounts.privateKeyToAccount(this.state.currentImportAccount);
-
-    let accounts = JSON.parse(localStorage.getItem("accounts"));
-    if(!accounts) {
-      accounts = [];
+                    <h3>Accounts</h3>
+                    <RadioGroup
+                        label="Available Accounts"
+                        onChange={this.selectedStoredAccountChanged}
+                        selectedValue={this.state.selectedStoredAccount}
+                    >
+                        {
+                            this.state.storedAccounts.map(account => {
+                                return (<Radio key={account.address} value={account.address} label={account.address}/>)
+                            })
+                        }
+                    </RadioGroup>
+                </div>
+            </div>
+        );
     }
-    accounts.push({priv: this.state.currentImportAccount, addr: importedAccount.address});
-    localStorage.setItem("accounts", JSON.stringify(accounts));
+}
 
-  }
-
-  selectedStoredAccountChanged = (event) => {
-    this.setState({ selectedStoredAccount: event.target.value });
-  }
-
-
-    render(){
-      return(
-          <div>
-              <Header setAndUpdateConnection={this.setAndUpdateConnection} />
-              <div className="content">
-                <h1>{this.state.handlerValue}</h1>
-                  <h1>Account Management</h1>
-                  <h3>Create a new Account</h3>
-                  <p>This generates a new Keypair. However, please consider, that the new Account do not have any funds on any network.</p>
-                  <ControlGroup>
-                            {
-                                <Button
-                                  intent="primary"
-                                  rightIcon="send-to-graph"
-                                  text="Create new Account"
-                                  onClick={this.createAccount}
-                                /> 
-                              }
-                              </ControlGroup>
-
-                  <h3>Import an Account</h3>
-                  <p>This generates a new Keypair. However, please consider, that the new Account do not have any funds on any network.</p>
-                  <ControlGroup>
-                          <InputGroup onChange={this.updateInputImportAccount} id="text-input" placeholder="Paste your private key here..."  intent="primary" style={{width: '800px', fontFamily: 'Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace'}} />
-                              {
-                                <Button
-                                  intent="primary"
-                                  rightIcon="import"
-                                  text="Import Account"
-                                  onClick={this.importAccount}
-                                /> 
-                              }
-                              </ControlGroup>
-
-
-                  <h3>Accounts</h3>
-                  <RadioGroup
-                                label="Available Accounts"
-                                onChange={this.selectedStoredAccountChanged}
-                                selectedValue={this.state.selectedStoredAccount}
-                            >
-                                {
-                                   this.state.storedAccounts.map(account => {
-                                            return (<Radio key={account.addr} value={account.addr} label={account.addr} />)
-                                        })
-                                }
-                            </RadioGroup>
-              </div>
-          </div>
-      );
-    }
-  }
-  
-  export default hot(module)(Accounts);
+export default hot(module)(Accounts);
