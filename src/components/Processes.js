@@ -86,7 +86,7 @@ class Processes extends Component{
       }
     }
 
-      this.enzian.eventlogByAddress(e).then(r => {
+      this.enzian.eventLog(e).then(r => {
         this.setState({ currentEventLog: r })
       });
 
@@ -102,7 +102,7 @@ class Processes extends Component{
       case 'MetaMask':
       
         this.enzian = new EnzianYellow(window.ethereum);
-        result = await this.enzian.executeTaskByAddress(
+        result = await this.enzian.executeTask(
           this.state.selectedContract,
           this.state.taskToBeExecuted
         );
@@ -111,10 +111,9 @@ class Processes extends Component{
       break;
       default:
         this.enzian = new EnzianYellow(this.state.selectedConnection, localStorage.getItem('selectedPrivateKey'), 'ethereum');
-        result = await this.enzian.executeTaskByAddress(
+        result = await this.enzian.executeTask(
           this.state.selectedContract,
           this.state.taskToBeExecuted,
-          localStorage.getItem('selectedPrivateKey')
         );
         console.log("tx returned: ", result);
         break;
@@ -122,7 +121,7 @@ class Processes extends Component{
 
     this.setState({waitForVerification: false})
     
-    this.enzian.eventlogByAddress(this.state.selectedContract).then(r => {
+    this.enzian.eventLog(this.state.selectedContract).then(r => {
       console.log(r);
       this.setState({ currentEventLog: r })
     });
