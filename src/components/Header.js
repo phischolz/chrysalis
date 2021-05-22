@@ -166,7 +166,8 @@ class Header extends Component {
                     </Navbar.Heading>
                     <Navbar.Divider/>
                     <Link to='/'><Button className="bp3-minimal" icon="home" text="Home"/></Link>
-                    <Link to='/deployNewProcess'><Button className="bp3-minimal" icon="new-object" text="Deploy Process"/></Link>
+                    <Link to='/deployNewProcess'><Button className="bp3-minimal" icon="new-object"
+                                                         text="Deploy Process"/></Link>
                     <Link to='/processes'><Button className="bp3-minimal" icon="exchange" text="All Processes"/></Link>
                     <Link to='/configure'><Button className="bp3-minimal" icon="cog" text="Configure"/></Link>
                     <Link to='/web3'><Button className="bp3-minimal" icon="info-sign" text="Info"/></Link>
@@ -186,7 +187,9 @@ class Header extends Component {
                             onItemSelect={this.storedAccountSelected}
                         >
                             {/* children become the popover target; render value here */}
-                            <Button text={this.state.selectedAccount ? this.state.selectedAccount.address : 'Choose Account'} rightIcon="double-caret-vertical"/>
+                            <Button
+                                text={this.state.selectedAccount ? this.state.selectedAccount.address : 'Choose Account'}
+                                rightIcon="double-caret-vertical"/>
                         </Select>
                     </ControlGroup>
 
@@ -204,7 +207,9 @@ class Header extends Component {
                             onItemSelect={this.storedConnectionSelected}
                         >
                             {/* children become the popover target; render value here */}
-                            <Button text={this.state.selectedConnection ? this.state.selectedConnection.address : 'Choose connection'} rightIcon="double-caret-vertical"/>
+                            <Button
+                                text={this.state.selectedConnection ? this.state.selectedConnection.address : 'Choose connection'}
+                                rightIcon="double-caret-vertical"/>
                         </Select>
 
                     </ControlGroup>

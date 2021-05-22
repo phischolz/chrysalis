@@ -43,9 +43,10 @@ class Deploy extends Component {
     }
 
     enzian;
+
     constructor(props) {
         super(props);
-        if(window.ethereum) this.enzian = new EnzianYellow(window.ethereum);
+        if (window.ethereum) this.enzian = new EnzianYellow(window.ethereum);
 
     }
 
@@ -67,14 +68,14 @@ class Deploy extends Component {
         e.preventDefault()
         const reader = new FileReader()
 
-        reader.onload = async (e) => { 
-          const text = (e.target.result)
-          console.log(text);
-      
-          let parsedBPMN = await this.enzian.parseBpmnModel(text);
+        reader.onload = async (e) => {
+            const text = (e.target.result)
+            console.log(text);
 
-          console.log(parsedBPMN);
-          this.setState({ enzianModel: parsedBPMN })
+            let parsedBPMN = await this.enzian.parseBpmnModel(text);
+
+            console.log(parsedBPMN);
+            this.setState({enzianModel: parsedBPMN})
         };
 
         reader.readAsText(e.target.files[0]);
@@ -96,7 +97,7 @@ class Deploy extends Component {
 
 
     deployModel = async () => {
-    
+
         this.setState({isDialogOpen: true});
         switch (this.state.network) {
             case 'main':
@@ -118,31 +119,31 @@ class Deploy extends Component {
         console.log("deploying with ", this.state.selectedConnection.address)
 
         let result, contracts;
-        switch(this.state.selectedConnection) {
+        switch (this.state.selectedConnection) {
             case 'MetaMask':
-          
-            this.enzian = new EnzianYellow(window.ethereum);
 
-             // SELF SIGNED
+                this.enzian = new EnzianYellow(window.ethereum);
 
-            result = await this.enzian.deployEnzianModel(this.state.enzianModel);
+                // SELF SIGNED
 
-            this.postContract(result)
-            
-            break;
-          default:
-            // SELF SIGNED
-            console.log('pk', this.state.selectedStoredAccount.privateKey);
-            console.log("selected Abi:", this.state.selectedAbi)
-            this.enzian = new EnzianYellow(
-                this.state.selectedConnection,
-                this.state.selectedStoredAccount.privateKey,
-                'ethereum'
-            );
-            result = await this.enzian.deployEnzianModel(this.state.enzianModel);
+                result = await this.enzian.deployEnzianModel(this.state.enzianModel);
 
-            this.postContract(result)
-            break;
+                this.postContract(result)
+
+                break;
+            default:
+                // SELF SIGNED
+                console.log('pk', this.state.selectedStoredAccount.privateKey);
+                console.log("selected Abi:", this.state.selectedAbi)
+                this.enzian = new EnzianYellow(
+                    this.state.selectedConnection,
+                    this.state.selectedStoredAccount.privateKey,
+                    'ethereum'
+                );
+                result = await this.enzian.deployEnzianModel(this.state.enzianModel);
+
+                this.postContract(result)
+                break;
         }
 
         console.log("finish");
@@ -160,7 +161,11 @@ class Deploy extends Component {
         let tasks = this.state.enzianModel.obj.map(obj => {
             return {number: obj.task.id, name: obj.task.name}
         })
-        ExchangeHandler.sendRequest('POST', restConfig.SERVER_URL + '/processes', {name: contractName, address: contract, tasks: Array.isArray(tasks) ? tasks : []})
+        ExchangeHandler.sendRequest('POST', restConfig.SERVER_URL + '/processes', {
+            name: contractName,
+            address: contract,
+            tasks: Array.isArray(tasks) ? tasks : []
+        })
     }
 
     setAndUpdateConnection = (value) => {
@@ -207,9 +212,12 @@ class Deploy extends Component {
                                     onChange={this.handleChange}
                                     selectedValue={this.state.network}
                                 >
-                                    <Radio label='Ethereum Mainnet' value="main" checked={this.state.network === 'main'}/>
-                                    <Radio label="Ropsten Testnet" value="ropsten" checked={this.state.network === 'ropsten'}/>
-                                    <Radio label="Private Net" value="private" checked={this.state.network === 'private'}/>
+                                    <Radio label='Ethereum Mainnet' value="main"
+                                           checked={this.state.network === 'main'}/>
+                                    <Radio label="Ropsten Testnet" value="ropsten"
+                                           checked={this.state.network === 'ropsten'}/>
+                                    <Radio label="Private Net" value="private"
+                                           checked={this.state.network === 'private'}/>
                                 </RadioGroup>
 
                                 <div>
@@ -238,7 +246,8 @@ class Deploy extends Component {
                                                     {
                                                         this.state.storedAbis.map(abi => {
                                                             return (
-                                                                <Radio key={abi.id.toString()} value={abi.id.toString()} label={abi.key}/>)
+                                                                <Radio key={abi.id.toString()} value={abi.id.toString()}
+                                                                       label={abi.key}/>)
                                                         })
                                                     }
                                                     <Radio key="custom" value="custom" label="Custom"/>
@@ -249,8 +258,10 @@ class Deploy extends Component {
                                             {
                                                 this.state.selectedStoredAbiId === 'custom' ?
                                                     <div style={{margin: '10px'}}>
-                                                        <h5>Upload the Contract-ABI with the linked Decision Library</h5>
-                                                        <FileInput text='Select an ABI...' onInputChange={this.readABI}/>
+                                                        <h5>Upload the Contract-ABI with the linked Decision
+                                                            Library</h5>
+                                                        <FileInput text='Select an ABI...'
+                                                                   onInputChange={this.readABI}/>
                                                     </div>
                                                     : ''
 
@@ -314,8 +325,8 @@ class Deploy extends Component {
         );
     }
 }
-  
-  export default hot(module)(Deploy);
+
+export default hot(module)(Deploy);
 
 
   

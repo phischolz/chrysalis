@@ -40,6 +40,7 @@ class Processes extends Component {
         ExchangeHandler.sendRequest('GET', this.SERVER_ENDPOINT).then(response => {
             this.setState({storedContracts: response.data})
         })
+    }
 
 
     componentDidMount() {
@@ -103,37 +104,37 @@ class Processes extends Component {
     onExecuteClick = async () => {
 
         this.setState({waitForVerification: true})
-    let result;
+        let result;
 
-    switch (this.state.selectedConnection.address) {
+        switch (this.state.selectedConnection.address) {
 
-      case 'MetaMask':
-      
-        this.enzian = new EnzianYellow(window.ethereum);
-        result = await this.enzian.executeTaskByAddress(
-          this.state.selectedContract.address,
-          this.state.taskToBeExecuted.number
-        );
-        console.log("tx returned:   ", result);
-      
-      break;
-      default:
-        this.enzian = new EnzianYellow(this.state.selectedConnection.address, this.state.selectedStoredAccount.privateKey, 'ethereum');
-        result = await this.enzian.executeTaskByAddress(
-          this.state.selectedContract.address,
-          this.state.taskToBeExecuted.number,
-          this.state.selectedStoredAccount.privateKey
-        );
-        console.log("tx returned: ", result);
-        break;
-    }
+            case 'MetaMask':
 
-    this.setState({waitForVerification: false})
-    
-    this.enzian.eventlogByAddress(this.state.selectedContract).then(r => {
-      console.log(r);
-      this.setState({ currentEventLog: r })
-    });
+                this.enzian = new EnzianYellow(window.ethereum);
+                result = await this.enzian.executeTaskByAddress(
+                    this.state.selectedContract.address,
+                    this.state.taskToBeExecuted.number
+                );
+                console.log("tx returned:   ", result);
+
+                break;
+            default:
+                this.enzian = new EnzianYellow(this.state.selectedConnection.address, this.state.selectedStoredAccount.privateKey, 'ethereum');
+                result = await this.enzian.executeTaskByAddress(
+                    this.state.selectedContract.address,
+                    this.state.taskToBeExecuted.number,
+                    this.state.selectedStoredAccount.privateKey
+                );
+                console.log("tx returned: ", result);
+                break;
+        }
+
+        this.setState({waitForVerification: false})
+
+        this.enzian.eventlogByAddress(this.state.selectedContract).then(r => {
+            console.log(r);
+            this.setState({currentEventLog: r})
+        });
 
     }
 
@@ -210,7 +211,8 @@ class Processes extends Component {
                                 {
                                     this.state.currentEventLog.map(task => {
                                         return (
-                                            <Tag style={{margin: '5px'}} minimal="true" intent="success" large="true" key={task}> {task}</Tag>)
+                                            <Tag style={{margin: '5px'}} minimal="true" intent="success" large="true"
+                                                 key={task}> {task}</Tag>)
                                     })
                                 }
                             </div>

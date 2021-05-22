@@ -68,7 +68,8 @@ class Accounts extends Component {
         console.log("New contract with ", this.state.selectedConnection.address)
 
         switch (this.state.selectedConnection.address) {
-            case 'MetaMask': break;
+            case 'MetaMask':
+                break;
             default:
                 let web3Instance = new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection.address));
                 let newAccount = await web3Instance.eth.accounts.create();
