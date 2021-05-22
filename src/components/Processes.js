@@ -5,7 +5,7 @@ import Header from './Header';
 
 import { MenuItem, Button, NumericInput, ControlGroup, InputGroup, Tag, Spinner} from  "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
-const Web3 = require("web3");
+
 
 const EnzianYellow = require("enzian-yellow");
 
@@ -81,7 +81,7 @@ class Processes extends Component{
         this.enzian = new EnzianYellow(window.ethereum);
       }
       else {
-        this.enzian = new EnzianYellow(new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection)));
+        this.enzian = new EnzianYellow(this.state.selectedConnection, localStorage.getItem('selectedPrivateKey'), 'ethereum');
 
       }
     }
@@ -110,7 +110,7 @@ class Processes extends Component{
       
       break;
       default:
-        this.enzian = new EnzianYellow(new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection)));
+        this.enzian = new EnzianYellow(this.state.selectedConnection, localStorage.getItem('selectedPrivateKey'), 'ethereum');
         result = await this.enzian.executeTaskByAddress(
           this.state.selectedContract,
           this.state.taskToBeExecuted,

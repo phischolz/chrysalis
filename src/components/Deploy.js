@@ -4,7 +4,7 @@ import ReactJson from 'react-json-view'
 import Header from './Header';
 
 //import { Select } from "@blueprintjs/select";
-const Web3 = require("web3");
+
 
 
 import {
@@ -43,7 +43,8 @@ class Deploy extends Component{
     enzian;
     constructor(props) {
         super(props);
-        this.enzian = new EnzianYellow(window.ethereum);
+        if(window.ethereum) this.enzian = new EnzianYellow(window.ethereum);
+
     }
 
     componentDidMount() {
@@ -134,13 +135,13 @@ class Deploy extends Component{
 
         let result, contracts;
         switch(this.state.selectedConnection) {
-          case 'MetaMask':
+            case 'MetaMask':
           
             this.enzian = new EnzianYellow(window.ethereum);
 
              // SELF SIGNED
 
-            result = await this.enzian.deployEnzianModel(this.state.enzianModel, this.state.selectedAbi);
+            result = await this.enzian.deployEnzianModel(this.state.enzianModel);
 
             contracts = JSON.parse(localStorage.getItem("contracts"));
             if(!contracts) {
@@ -151,17 +152,19 @@ class Deploy extends Component{
 
             break;
           default:
-            this.enzian = new EnzianYellow(new Web3(new Web3.providers.HttpProvider(this.state.selectedConnection)));
-
-             // SELF SIGNED
+            // SELF SIGNED
             console.log('pk', localStorage.getItem('selectedPrivateKey'));
             console.log("selected Abi:", this.state.selectedAbi)
-
-            result = await this.enzian.deployEnzianModel(this.state.enzianModel, this.state.selectedAbi, localStorage.getItem('selectedPrivateKey'));
+            this.enzian = new EnzianYellow(
+                this.state.selectedConnection,
+                localStorage.getItem('selectedPrivateKey'),
+                'ethereum'
+            );
+            result = await this.enzian.deployEnzianModel(this.state.enzianModel);
 
             contracts = JSON.parse(localStorage.getItem("contracts"));
             if(!contracts) {
-              contracts = [];
+                contracts = [];
             }
             contracts.push(result);
             localStorage.setItem("contracts", JSON.stringify(contracts));

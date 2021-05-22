@@ -37,7 +37,7 @@ class Header extends Component{
     let selectedConnectionFromStorage = localStorage.getItem("selectedConnection");
     await this.setState({ selectedConnection: selectedConnectionFromStorage });
     // AND TRY TO CONNECT
-    this.tryConnect(selectedConnectionFromStorage)
+    await this.tryConnect(selectedConnectionFromStorage)
 
     // GET ACCOUNTS FROM LOCAL STORAGE
     let accounts = JSON.parse(localStorage.getItem("accounts"));
