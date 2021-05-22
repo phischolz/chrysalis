@@ -40,6 +40,5 @@
     "react-hot-loader": "^4.3.11",
     "react-json-view": "^1.21.1",
     "react-router-dom": "^5.2.0"
-  },
-  "enzian-yellow_old": "file:../enzian-yellow/enzian-yellow-0.3.0.tgz"
+  }
 }

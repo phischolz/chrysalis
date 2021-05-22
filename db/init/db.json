@@ -1,0 +1,44 @@
+{
+  "web3Connections": [
+    {
+      "id": "1",
+      "address": "test"
+    }
+  ],
+  "accounts": [
+    {
+      "id": "1",
+      "address": "test",
+      "privateKey": "test"
+    }
+  ],
+  "abis": [
+    {
+      "id": "1",
+      "key": "test",
+      "abi": "test"
+    }
+  ],
+  "settings": [
+    {
+      "id": "0",
+      "web3ConnectionId": "1",
+      "accountId": "1"
+    }
+  ],
+  "processes": [
+    {
+      "id": "1",
+      "address": "test",
+      "name": "test"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1",
+      "processId": "1",
+      "name": "Test task",
+      "number": "0"
+    }
+  ]
+}
