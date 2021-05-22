@@ -128,23 +128,21 @@ class Deploy extends Component {
             result = await this.enzian.deployEnzianModel(this.state.enzianModel);
 
             this.postContract(result)
-
+            
             break;
           default:
             // SELF SIGNED
-            console.log('pk', localStorage.getItem('selectedPrivateKey'));
+            console.log('pk', this.state.selectedStoredAccount.privateKey);
             console.log("selected Abi:", this.state.selectedAbi)
             this.enzian = new EnzianYellow(
                 this.state.selectedConnection,
-                localStorage.getItem('selectedPrivateKey'),
+                this.state.selectedStoredAccount.privateKey,
                 'ethereum'
             );
             result = await this.enzian.deployEnzianModel(this.state.enzianModel);
 
             this.postContract(result)
             break;
-        }
-
         }
 
         console.log("finish");
