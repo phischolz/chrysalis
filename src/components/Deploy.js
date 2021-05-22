@@ -126,10 +126,10 @@ class Deploy extends Component {
 
                 // SELF SIGNED
 
-                console.log('pk', localStorage.getItem('selectedPrivateKey'));
+                console.log('pk', this.state.selectedStoredAccount.privateKey);
                 console.log("selected Abi:", this.state.selectedAbi)
 
-                theresult = await this.enzian.deployEnzianModelWithAbiSelfSigned(this.state.enzianModel, this.state.selectedAbi, localStorage.getItem('selectedPrivateKey'));
+                theresult = await this.enzian.deployEnzianModelWithAbiSelfSigned(this.state.enzianModel, this.state.selectedAbi, this.state.selectedStoredAccount.privateKey);
 
                 this.postContract(theresult)
                 break;
