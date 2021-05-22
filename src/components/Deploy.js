@@ -119,7 +119,7 @@ class Deploy extends Component {
         console.log("deploying with ", this.state.selectedConnection.address)
 
         let result, contracts;
-        switch (this.state.selectedConnection) {
+        switch (this.state.selectedConnection.address) {
             case 'MetaMask':
 
                 this.enzian = new EnzianYellow(window.ethereum);
@@ -136,7 +136,7 @@ class Deploy extends Component {
                 console.log('pk', this.state.selectedStoredAccount.privateKey);
                 console.log("selected Abi:", this.state.selectedAbi)
                 this.enzian = new EnzianYellow(
-                    this.state.selectedConnection,
+                    this.state.selectedConnection.address,
                     this.state.selectedStoredAccount.privateKey,
                     'ethereum'
                 );
