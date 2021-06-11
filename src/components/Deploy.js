@@ -5,8 +5,6 @@ import Header from './Header';
 //import {Select} from "@blueprintjs/select";
 import restConfig from "../dataExchange/connection/rest-config.json";
 
-const Web3 = require("web3");
-
 
 import {
     //AnchorButton,
@@ -46,7 +44,7 @@ class Deploy extends Component {
 
     constructor(props) {
         super(props);
-        if (window.ethereum) this.enzian = new EnzianYellow(window.ethereum);
+        //if (window.ethereum) this.enzian = new EnzianYellow(window.ethereum);
 
     }
 
@@ -72,6 +70,7 @@ class Deploy extends Component {
             const text = (e.target.result)
             console.log(text);
 
+            this.setEnzian();
             let parsedBPMN = await this.enzian.parseBpmnModel(text);
 
             console.log(parsedBPMN);
@@ -118,37 +117,28 @@ class Deploy extends Component {
         }
         console.log("deploying with ", this.state.selectedConnection.address)
 
-        let result, contracts;
+        this.setEnzian();
+        let result = await this.enzian.deployEnzianModel(this.state.enzianModel);
+
+
+        this.postContract(result)
+        console.log("finish");
+        this.setState({isDialogOpen: false});
+
+    }
+
+    setEnzian = () => {
         switch (this.state.selectedConnection.address) {
             case 'MetaMask':
-
                 this.enzian = new EnzianYellow(window.ethereum);
-
-                // SELF SIGNED
-
-                result = await this.enzian.deployEnzianModel(this.state.enzianModel);
-
-                this.postContract(result)
-
                 break;
             default:
-                // SELF SIGNED
-                console.log('pk', this.state.selectedStoredAccount.privateKey);
-                console.log("selected Abi:", this.state.selectedAbi)
                 this.enzian = new EnzianYellow(
                     this.state.selectedConnection.address,
                     this.state.selectedStoredAccount.privateKey,
                     'ethereum'
                 );
-                result = await this.enzian.deployEnzianModel(this.state.enzianModel);
-
-                this.postContract(result)
-                break;
         }
-
-        console.log("finish");
-        this.setState({isDialogOpen: false});
-
     }
 
     /**
