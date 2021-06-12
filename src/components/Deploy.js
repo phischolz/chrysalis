@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {hot} from "react-hot-loader";
 import ReactJson from 'react-json-view'
 import Header from './Header';
-//import {Select} from "@blueprintjs/select";
 import restConfig from "../dataExchange/connection/rest-config.json";
 
 
@@ -15,10 +14,12 @@ import {
     Dialog,
     Classes,
     Intent,
-    ProgressBar
+    ProgressBar, MenuItem
 
 } from "@blueprintjs/core";
+
 import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
+import {Select} from "@blueprintjs/select";
 
 const EnzianYellow = require("enzian-yellow");
 
@@ -36,6 +37,8 @@ class Deploy extends Component {
 
         storedConnections: [],
         selectedConnection: '',
+        chainTypes: ['ethereum', 'hyperledger'],
+        selectedChainType: 'ethereum',
         isDialogOpen: false,
         deploymentProgress: 1,
     }
@@ -127,17 +130,17 @@ class Deploy extends Component {
 
     }
 
+
+
     setEnzian = () => {
-        switch (this.state.selectedConnection.address) {
-            case 'MetaMask':
-                this.enzian = new EnzianYellow(window.ethereum);
-                break;
-            default:
-                this.enzian = new EnzianYellow(
-                    this.state.selectedConnection.address,
-                    this.state.selectedStoredAccount.privateKey,
-                    'ethereum'
-                );
+        if ( this.state.selectedChainType === "ethereum" && this.state.selectedConnection.address === 'MetaMask'){
+            this.enzian = new EnzianYellow(window.ethereum);
+        } else {
+            this.enzian = new EnzianYellow(
+                this.state.selectedConnection.address,
+                this.state.selectedStoredAccount.privateKey,
+                this.state.selectedChainType
+            );
         }
     }
 
@@ -165,6 +168,25 @@ class Deploy extends Component {
         })
     }
 
+    renderChainType = (selectedChainType, {handleClick, modifiers}) => {
+        if (modifiers && !modifiers.matchesPredicate) {
+            return null;
+        }
+        return (
+            <MenuItem
+                active={modifiers.active}
+                key={selectedChainType}
+                onClick={handleClick}
+                text={selectedChainType}
+            />
+        );
+    }
+
+    chainTypeSelected = (e) => {
+        console.log("selected Chain Type: " + e);
+        this.setState({selectedChainType: e}, this.setEnzian);
+
+    }
 
     render() {
         return (
@@ -224,6 +246,18 @@ class Deploy extends Component {
                                                 Compilation in butterfly is not supportet yet, as solc has a dependency
                                                 to fs which is not supportet in browser environment.
                                             </p>
+                                            <p>
+                                                Please select your connection Type:
+                                            </p>
+                                            <Select
+                                                items={this.state.chainTypes}
+                                                itemRenderer={this.renderChainType}
+                                                noResults={<MenuItem disabled={false} text="No results."/>}
+                                                onItemSelect={this.chainTypeSelected}
+                                            >
+                                                {/* children become the popover target; render value here */}
+                                                <Button text={this.state.selectedChainType} rightIcon="double-caret-vertical"/>
+                                            </Select>
 
 
                                             <div>
