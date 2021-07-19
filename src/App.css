@@ -14,3 +14,19 @@
   .theimage {
       height: 32px;
   }
+
+  .contract {
+      margin: 10px;
+      width: 400px;
+  }
+
+  .contract input {
+      width: 100%;
+      padding: 6px 10px;
+      margin: 10px 0;
+      border: 1px solid #6495ed;
+      border-radius: 5px;
+      box-sizing: border-box;
+      display: block;
+      font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace
+  }
