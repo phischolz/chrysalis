@@ -20,4 +20,4 @@ class PatchRequestSender {
     }
 }
 
-export default PatchRequestSender
+module.exports = PatchRequestSender

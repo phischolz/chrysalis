@@ -1,3 +1,3 @@
-import { createBrowserHistory } from 'history';
+const { createBrowserHistory } = require( 'history');
 
-export default createBrowserHistory();
+module.exports = createBrowserHistory();

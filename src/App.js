@@ -1,9 +1,9 @@
-import React, { Component} from "react";
-import {hot} from "react-hot-loader";
-import Header from './components/Header';
-import "regenerator-runtime/runtime";
+const {Component} = require( "react");
+const {hot} = require( "react-hot-loader");
+const Header = require( './components/Header');
 
-import "./App.css";
+
+require( "./App.css");
 
 class App extends Component {
 
@@ -29,4 +29,4 @@ class App extends Component {
   }
 }
 
-export default hot(module)(App);
+module.exports = hot(module)(App);

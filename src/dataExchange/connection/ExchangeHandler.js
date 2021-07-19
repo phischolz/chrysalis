@@ -1,5 +1,5 @@
-import SenderRepository from "./requests/SenderRepository";
-import {hot} from "react-hot-loader";
+const SenderRepository = require( "./requests/SenderRepository");
+const {hot} = require( "react-hot-loader");
 
 class ExchangeHandler {
     /**
@@ -14,4 +14,4 @@ class ExchangeHandler {
     }
 }
 
-export default hot(module)(ExchangeHandler)
+module.exports = hot(module)(ExchangeHandler)

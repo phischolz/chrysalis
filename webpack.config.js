@@ -9,10 +9,10 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(js|jsx|mjs)$/,
         exclude: /(node_modules|bower_components)/,
         loader: "babel-loader",
-        options: { 
+        options: {
           "presets": ["@babel/env", "@babel/preset-react"],
           "plugins": ["@babel/plugin-transform-regenerator", "transform-class-properties"]
       }
@@ -37,7 +37,26 @@ module.exports = {
 
     ]
   },
-  resolve: { extensions: ["*", ".js", ".jsx", ".html"] },
+  resolve: {
+    extensions: ["*", ".js", ".jsx", ".html"],
+    fallback: {
+      'electron': false,
+      'path': false,
+      'tls': false,
+      'http': false,
+      'https': false,
+      'web3': false,
+      './package': false,
+      'fs': false,
+      'assert': false,
+      'os': false,
+      'stream': false,
+      'zlib': false,
+      'net': false,
+      'crypto': false,
+      'dns': false
+    }
+  },
   output: {
     path: path.resolve(__dirname, "dist/"),
     publicPath: "/dist/",
@@ -50,6 +69,7 @@ module.exports = {
     hotOnly: true,
     historyApiFallback: true
   },
+
   plugins: [new webpack.HotModuleReplacementPlugin()]
 };
 

@@ -17,4 +17,4 @@ class DeleteRequestSender {
     }
 }
 
-export default DeleteRequestSender
+module.exports = DeleteRequestSender

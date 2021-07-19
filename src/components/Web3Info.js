@@ -1,11 +1,11 @@
-import React, {Component} from "react";
-import {hot} from "react-hot-loader";
-import Header from './Header';
+const {Component} = require( "react");
+const {hot} = require( "react-hot-loader");
+const Header = require( './Header');
 
 const Web3 = require("web3");
-import restConfig from '../dataExchange/connection/rest-config.json'
-import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
-import {
+const restConfig = require( '../dataExchange/connection/rest-config.json');
+const ExchangeHandler = require( "../dataExchange/connection/ExchangeHandler");
+const {
     Button,
     Card,
     ControlGroup,
@@ -14,7 +14,7 @@ import {
     InputGroup,
     Tag
 
-} from "@blueprintjs/core";
+} = require( "@blueprintjs/core");
 
 
 class Web3Info extends Component {
@@ -165,4 +165,4 @@ class Web3Info extends Component {
     }
 }
 
-export default hot(module)(Web3Info);
+module.exports = hot(module)(Web3Info);

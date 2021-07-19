@@ -1,8 +1,8 @@
-import GetRequestSender from "./requestSenders/GetRequestSender";
-import PostRequestSender from "./requestSenders/PostRequestSender";
-import DeleteRequestSender from "./requestSenders/DeleteRequestSender";
-import {hot} from "react-hot-loader";
-import PatchRequestSender from "./requestSenders/PatchRequestSender";
+const GetRequestSender = require( "./requestSenders/GetRequestSender");
+const PostRequestSender = require( "./requestSenders/PostRequestSender");
+const DeleteRequestSender = require( "./requestSenders/DeleteRequestSender");
+const {hot} = require( "react-hot-loader");
+const PatchRequestSender = require( "./requestSenders/PatchRequestSender");
 
 class SenderRepository {
     /**
@@ -22,4 +22,4 @@ class SenderRepository {
     }
 }
 
-export default hot(module)(SenderRepository)
+module.exports = hot(module)(SenderRepository)

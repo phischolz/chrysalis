@@ -1,14 +1,14 @@
-import React, {Component} from "react";
-import {hot} from "react-hot-loader";
+const {Component} = require( "react");
+const {hot} = require( "react-hot-loader");
 
-import Header from './Header';
+const Header = require( './Header');
 
-import {MenuItem, Button, NumericInput, ControlGroup, InputGroup, Tag, Spinner} from "@blueprintjs/core";
-import {Select} from "@blueprintjs/select";
+const {MenuItem, Button, NumericInput, ControlGroup, InputGroup, Tag, Spinner} = require( "@blueprintjs/core");
+const {Select} = require( "@blueprintjs/select");
 
 const Web3 = require("web3");
-import restConfig from "../dataExchange/connection/rest-config.json"
-import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
+const restConfig = require( "../dataExchange/connection/rest-config.json");
+const ExchangeHandler = require( "../dataExchange/connection/ExchangeHandler");
 
 const EnzianYellow = require("enzian-yellow");
 
@@ -266,4 +266,4 @@ class Processes extends Component {
     }
 }
 
-export default hot(module)(Processes);
+module.exports = hot(module)(Processes);

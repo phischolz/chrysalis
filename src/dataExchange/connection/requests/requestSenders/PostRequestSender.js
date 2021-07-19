@@ -23,4 +23,4 @@ class PostRequestSender {
     }
 }
 
-export default PostRequestSender
+module.exports = PostRequestSender

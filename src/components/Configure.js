@@ -1,8 +1,8 @@
-import React, {Component} from "react";
-import {hot} from "react-hot-loader";
-import Header from './Header';
+const {Component} = require( "react");
+const {hot} = require( "react-hot-loader");
+const Header = require( './Header');
 
-import {
+const {
     Button,
     Card,
     Icon,
@@ -11,9 +11,9 @@ import {
     FileInput,
     InputGroup,
     Radio
-} from "@blueprintjs/core";
-import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
-import restConfig from "../dataExchange/connection/rest-config.json";
+} = require( "@blueprintjs/core");
+const ExchangeHandler = require( "../dataExchange/connection/ExchangeHandler");
+const restConfig = require( "../dataExchange/connection/rest-config.json");
 
 class Configure extends Component {
 
@@ -124,4 +124,4 @@ class Configure extends Component {
     }
 }
 
-export default hot(module)(Configure);
+module.exports = hot(module)(Configure);

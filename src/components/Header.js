@@ -1,11 +1,11 @@
-import React, {Component} from "react";
-import {hot} from "react-hot-loader";
-import {Link} from 'react-router-dom';
+const {Component} = require( "react");
+const {hot} = require( "react-hot-loader");
+const {Link} = require( 'react-router-dom');
 
-import {Navbar, Button, MenuItem, Tag, ControlGroup, Alignment} from "@blueprintjs/core";
-import {Select} from "@blueprintjs/select";
-import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
-import restConfig from "../dataExchange/connection/rest-config.json";
+const {Navbar, Button, MenuItem, Tag, ControlGroup, Alignment} = require( "@blueprintjs/core");
+const {Select} = require( "@blueprintjs/select");
+const ExchangeHandler = require( "../dataExchange/connection/ExchangeHandler");
+const restConfig = require( "../dataExchange/connection/rest-config.json");
 
 const Web3 = require("web3");
 
@@ -219,4 +219,4 @@ class Header extends Component {
     }
 }
 
-export default hot(module)(Header);
+module.exports = hot(module)(Header);

@@ -1,13 +1,13 @@
-import React from 'react';
-import { render } from 'react-dom';
-import { Router, Switch, Route } from 'react-router-dom';
-import App from "./App.js";
-import Configure from './components/Configure.js';
-import Deploy from './components/Deploy.js';
-import Processes from './components/Processes.js';
-import Web3Info from './components/Web3Info.js';
-import Accounts from './components/Accounts.js';
-import history from './history';
+const React = require('react')
+const {render} = require('react-dom')
+const { Router, Switch, Route } = require('react-router-dom');
+const App = require("./App.js");
+const Configure = require('./components/Configure.js');
+const Deploy = require('./components/Deploy.js');
+const Processes = require( './components/Processes.js');
+const Web3Info = require( './components/Web3Info.js');
+const Accounts = require( './components/Accounts.js');
+const history = require( './history');
 
 render(
     <Router history={history}>

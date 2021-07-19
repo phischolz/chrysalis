@@ -3,42 +3,37 @@
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
-  "browser": {
-    "fs": false,
-    "os": false,
-    "path": false
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --mode development",
+    "start": "webpack serve",
     "build": "webpack --mode production"
   },
   "author": "Christian Sturm",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.1.0",
-    "@babel/core": "^7.1.0",
-    "@babel/preset-env": "^7.1.0",
-    "@babel/preset-react": "^7.0.0",
+    "@babel/cli": "^7.14.5",
+    "@babel/core": "^7.14.6",
+    "@babel/plugin-transform-runtime": "^7.14.5",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/preset-react": "^7.14.5",
     "babel-loader": "^8.0.2",
-    "css-loader": "^1.0.0",
-    "file-loader": "^6.2.0",
-    "style-loader": "^0.23.0",
-    "url-loader": "^4.1.1",
-    "webpack": "^4.19.1",
-    "webpack-cli": "^3.1.1",
-    "webpack-dev-server": "^3.1.8"
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "css-loader": "*",
+    "file-loader": "*",
+    "style-loader": "*",
+    "url-loader": "*",
+    "webpack": "*",
+    "webpack-cli": "*",
+    "webpack-dev-server": "*"
   },
   "dependencies": {
-    "@babel/plugin-transform-runtime": "^7.12.17",
-    "@blueprintjs/core": "^3.39.0",
-    "@blueprintjs/select": "^3.15.5",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "enzian-yellow": "file:../enzian-yellow/enzian-yellow-0.3.0.tgz",
-    "react": "^16.5.2",
-    "react-dom": "^16.5.2",
-    "react-hot-loader": "^4.3.11",
-    "react-json-view": "^1.21.1",
-    "react-router-dom": "^5.2.0"
+    "@blueprintjs/core": "*",
+    "@blueprintjs/select": "*",
+    "enzian-yellow": "file:../enzian-yellow",
+    "react": "*",
+    "react-dom": "*",
+    "react-hot-loader": "*",
+    "react-json-view": "*",
+    "react-router-dom": "*"
   }
 }

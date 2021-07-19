@@ -21,4 +21,4 @@ class GetRequestSender {
     }
 }
 
-export default GetRequestSender
+module.exports = GetRequestSender

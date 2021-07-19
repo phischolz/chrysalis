@@ -1,11 +1,11 @@
-import React, {Component} from "react";
-import {hot} from "react-hot-loader";
-import ReactJson from 'react-json-view'
-import Header from './Header';
-import restConfig from "../dataExchange/connection/rest-config.json";
+const {Component} = require( "react");
+const {hot} = require( "react-hot-loader");
+const ReactJson = require( 'react-json-view');
+const Header = require( './Header');
+const restConfig = require( "../dataExchange/connection/rest-config.json");
 
 
-import {
+const {
     //AnchorButton,
     Button,
     FileInput,
@@ -16,10 +16,10 @@ import {
     Intent,
     ProgressBar, MenuItem
 
-} from "@blueprintjs/core";
+} = require( "@blueprintjs/core");
 
-import ExchangeHandler from "../dataExchange/connection/ExchangeHandler";
-import {Select} from "@blueprintjs/select";
+const ExchangeHandler = require( "../dataExchange/connection/ExchangeHandler");
+const {Select} = require( "@blueprintjs/select");
 
 const EnzianYellow = require("enzian-yellow");
 
@@ -350,7 +350,7 @@ class Deploy extends Component {
     }
 }
 
-export default hot(module)(Deploy);
+module.exports = hot(module)(Deploy);
 
 
   
