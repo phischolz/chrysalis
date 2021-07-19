@@ -42,6 +42,13 @@ class Processes extends Component {
         })
     }
 
+    /**
+     * Gets contracts from a database with 500ms timeout to allow the database finish writing data
+     */
+    fetchContractsWithTimeout = () => {
+        setTimeout(this.fetchContracts, 500);
+    }
+
 
     componentDidMount() {
         this.fetchContracts();
@@ -64,8 +71,17 @@ class Processes extends Component {
 
 
     contractAddressSelected = (e) => {
+        console.log(e)
         this.setState({selectedContract: e, selectedContractTasks: e.tasks});
+        this.initEnzian();
 
+        this.enzian.eventLog(e.address).then(r => {
+            this.setState({currentEventLog: r})
+        });
+
+    }
+
+    initEnzian = () => {
         if (!this.enzian) {
             if (this.state.selectedConnection.address === 'MetaMask') {
 
@@ -75,11 +91,6 @@ class Processes extends Component {
 
             }
         }
-
-        this.enzian.eventLog(e.address).then(r => {
-            this.setState({currentEventLog: r})
-        });
-
     }
 
     renderTask = (selectedTask, {handleClick, modifiers}) => {
@@ -144,20 +155,33 @@ class Processes extends Component {
         })
     }
 
-    addNewContractAddress = () => {
-        let contracts = JSON.parse(localStorage.getItem("contracts"));
-        if (!contracts) {
-            contracts = [];
+    addNewContractAddress = (event) => {
+        event.preventDefault();
+        this.initEnzian();
+        if (!this.state.newContractName) {
+            alert('Process name cannot be empty!');
+            return;
         }
-        contracts.push(this.state.newContractAddress);
-        localStorage.setItem("contracts", JSON.stringify(contracts));
-        this.fetchContracts();
-        this.setState({newContractAddress: ''});
+        if (!this.state.newContractAddress) {
+            alert('Contract address cannot be empty!');
+            return;
+        }
+        this.enzian.tasksForAddress(this.state.newContractAddress).then(res => {
+            let tasks = res.map(task => {
+                return {number: task.id, name: task.activity}
+            })
+            ExchangeHandler.sendRequest('POST', restConfig.SERVER_URL + '/processes', {
+                name: this.state.newContractName,
+                address: this.state.newContractAddress,
+                tasks: Array.isArray(tasks) ? tasks : []
+            }).then(this.fetchContractsWithTimeout)
+        })
+
 
     }
 
-    updateNewContractAddress = (event) => {
-        this.setState({newContractAddress: event.target.value});
+    updateNewContract = (event) => {
+        this.setState({[event.target.name]: event.target.value});
     }
 
 
@@ -184,22 +208,29 @@ class Processes extends Component {
                                 </Select>
 
                             </div>
-                            <div style={{margin: '10px'}}>
+                            <div className="contract">
                                 <h5>or Add a new Contract Address</h5>
-
-                                <ControlGroup>
-                                    <InputGroup onChange={this.updateNewContractAddress} id="text-input"
-                                                placeholder="Paste the Contract Address here..." intent="primary"
-                                                style={{
-                                                    width: '400px',
-                                                    fontFamily: 'Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace'
-                                                }}/>
+                                <form onSubmit={this.addNewContractAddress}>
+                                    <input
+                                        type='text'
+                                        name='newContractName'
+                                        onChange={this.updateNewContract}
+                                        placeholder="Write the Process name here..."
+                                    />
+                                    <input
+                                        type='text'
+                                        name='newContractAddress'
+                                        onChange={this.updateNewContract}
+                                        placeholder="Write the Contract address here..."
+                                    />
                                     <Button
                                         intent="primary"
+                                        text='Add new Contract'
                                         rightIcon="floppy-disk"
                                         onClick={this.addNewContractAddress}
                                     />
-                                </ControlGroup>
+                                </form>
+
 
                             </div>
                         </div>
@@ -266,4 +297,6 @@ class Processes extends Component {
     }
 }
 
-module.exports = hot(module)(Processes);
+
+export default hot(module)(Processes);
+
