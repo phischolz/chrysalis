@@ -42,14 +42,6 @@ class Processes extends Component {
         })
     }
 
-    /**
-     * Gets contracts from a database with 500ms timeout to allow the database finish writing data
-     */
-    fetchContractsWithTimeout = () => {
-        setTimeout(this.fetchContracts, 500);
-    }
-
-
     componentDidMount() {
         this.fetchContracts();
     }
@@ -174,7 +166,7 @@ class Processes extends Component {
                 name: this.state.newContractName,
                 address: this.state.newContractAddress,
                 tasks: Array.isArray(tasks) ? tasks : []
-            }).then(this.fetchContractsWithTimeout)
+            }).then(this.fetchContracts)
         })
 
 
