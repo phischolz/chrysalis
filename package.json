@@ -39,6 +39,7 @@
     "react-dom": "^16.5.2",
     "react-hot-loader": "^4.3.11",
     "react-json-view": "^1.21.1",
-    "react-router-dom": "^5.2.0"
+    "react-router-dom": "^5.2.0",
+    "web3": "^1.4.0"
   }
 }
