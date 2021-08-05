@@ -134,12 +134,13 @@ class Deploy extends Component {
 
     setEnzian = () => {
         if ( this.state.selectedChainType === "ethereum" && this.state.selectedConnection.address === 'MetaMask'){
-            this.enzian = new EnzianYellow(window.ethereum);
+            this.enzian = new EnzianYellow(window.ethereum, undefined, undefined, {compiled: this.state.selectedAbi});
         } else {
             this.enzian = new EnzianYellow(
                 this.state.selectedConnection.address,
                 this.state.selectedStoredAccount.privateKey,
-                this.state.selectedChainType
+                this.state.selectedChainType,
+                {compiled: this.state.selectedAbi} //actually not "abi" but "compiled", containing abi and evm.
             );
         }
     }
@@ -243,8 +244,8 @@ class Deploy extends Component {
                                                 precompile the contract and provide the ABI below.
                                             </p>
                                             <p>
-                                                Compilation in butterfly is not supportet yet, as solc has a dependency
-                                                to fs which is not supportet in browser environment.
+                                                Compilation in butterfly is not supported yet, as solc has a dependency
+                                                to fs which is not supported in browser environment.
                                             </p>
                                             <p>
                                                 Please select your connection Type:
